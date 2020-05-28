@@ -6,6 +6,7 @@ class RaceTrack:
         # self.start = () tuple todo
         # self.end = () tuple todo
 
+
     # if given user input
     def __init__(self, grid, start, end):
         self.grid = grid
