@@ -4,3 +4,9 @@
 [submodule "vispy"]
 	path = vispy
 	url = https://github.com/vispy/vispy
+[submodule "glfw"]
+	path = glfw
+	url = https://github.com/glfw/glfw
+[submodule "numpy"]
+	path = numpy
+	url = https://github.com/numpy/numpy
