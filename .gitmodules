@@ -10,3 +10,6 @@
 [submodule "numpy"]
 	path = numpy
 	url = https://github.com/numpy/numpy
+[submodule "pytest"]
+	path = pytest
+	url = https://github.com/pytest-dev/pytest
