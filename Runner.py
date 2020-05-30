@@ -19,15 +19,8 @@ def draw():
 
     for car in p.cars:
         fill(np.random.uniform(0, 255), np.random.uniform(0, 255), np.random.uniform(0, 255), 30)
-        indivs.append(rect((car.x, car.y), 30, 40))
+        rect((car.x, car.y), 30, 40)
         car.move(Vector(np.random.uniform(-3, 3), np.random.uniform(-3, 3)))
-
-
-
-
-
-
-
 
 
 run(frame_rate=30)
