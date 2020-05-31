@@ -4,18 +4,17 @@ from mapdata import *
 from racetrack import RaceTrack
 
 p = Population(0, 0, POPSIZE)
+r = RaceTrack()
 
 # first thing to run
 def setup():
     size(SIMW, SIMH)
-    r = RaceTrack()
-    r.display()
+
 
 # runs immediately after setup
 def draw():
     no_stroke()
-    rect_mode("CENTER")
-    background(200)
+    r.display()
     # draw the track
 
     # for car in p.cars:
