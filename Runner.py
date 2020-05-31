@@ -1,9 +1,8 @@
 from p5 import *
 from population import Population
+from mapdata import *
+from racetrack import RaceTrack
 
-SIMH = 900
-SIMW = 1000
-POPSIZE = 70
 p = Population(0, 0, POPSIZE)
 
 # first thing to run
@@ -17,6 +16,8 @@ def draw():
     background(200)
     # draw the track
 
+    r = RaceTrack()
+    r.maketile().show()
     for car in p.cars:
         fill(np.random.uniform(0, 255), np.random.uniform(0, 255), np.random.uniform(0, 255), 30)
         rect((car.x, car.y), 30, 40)
