@@ -1,5 +1,5 @@
-SIMH = 900
-SIMW = 1000
-GRIDDIMX = 8
-GRIDDIMY = 8
-POPSIZE = 70
+SIMH = 900 # frame pixel height
+SIMW = 1000 # frame pizel width
+GRIDDIMX = 8 # number of x tiles
+GRIDDIMY = 8 # number of y tiles
+POPSIZE = 70 # population size
