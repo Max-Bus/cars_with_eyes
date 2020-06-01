@@ -2,33 +2,36 @@ from tile import Tile
 import numpy as np
 from p5 import *
 from mapdata import *
+import os
 
 
 class RaceTrack:
 
-    def __init__(self, grid=None, start=None, end=None):
+    def __init__(self, grid=None, start=None, end=None, dimx=GRIDDIMX, dimy=GRIDDIMY):
         if (grid == None or start == None or end == None):
-            g = [[None for x in range(GRIDDIMX)] for y in range(GRIDDIMY)]  # null gridd
-            s = (int(np.random.randint(0, GRIDDIMX)), np.random.randint(0, GRIDDIMY))  # (x, y) tuple for grid start
-            e = (np.random.randint(0, GRIDDIMX), np.random.randint(0, GRIDDIMY))  # (x, y) tuple for grid end
+            self.dimx = dimx
+            self.dimy = dimy
+
+            g = [[None for y in range(dimy)] for x in range(dimx)]  # null grid
+            s = (int(np.random.randint(0, dimx)), np.random.randint(0, dimy))  # (x, y) tuple for grid start
+            e = (np.random.randint(0, dimx), np.random.randint(0, dimy))  # (x, y) tuple for grid end
 
             # repick start and end if too close to each other
-            while (distance((s[0], s[1]), (e[0], e[1])) < (GRIDDIMY + GRIDDIMX) / 2):
-                s = (int(np.random.randint(0, GRIDDIMX)), np.random.randint(0, GRIDDIMY))  # (x, y) tuple for grid start
-                e = (np.random.randint(0, GRIDDIMX), np.random.randint(0, GRIDDIMY))  # (x, y) tuple for grid end
+            while (distance((s[0], s[1]), (e[0], e[1])) < (dimy + dimx) / 2):
+                s = (int(np.random.randint(0, dimx)), np.random.randint(0, dimy))  # (x, y) tuple for grid start
+                e = (np.random.randint(0, dimx), np.random.randint(0, dimy))  # (x, y) tuple for grid end
 
             self.start = s
             self.end = e
 
             # possible transitions
             transitions = ["up", "down", "left", "right"]
-
-            taken = []
             def addtrack(track=None, currx=s[0], curry=s[1], dir_to_prev=""):
                 if track is None:
                     track = g
+
                 allowed_transitions = []
-                # limit to directions that tend towards the goal (remove those and branching will be reintroduced)
+                # limit to directions that tend towards the goal (remove these and branching will be reintroduced)
                 if s[0] < e[0]:
                     allowed_transitions.append("right")
                 elif s[0] > e[0]:
@@ -55,11 +58,11 @@ class RaceTrack:
                 # remove transitions that will go off the screen
                 if currx == 0 and "left" in allowed_transitions:
                     allowed_transitions.remove("left")
-                if currx == GRIDDIMX - 1 and "right" in allowed_transitions:
+                if currx == dimx - 1 and "right" in allowed_transitions:
                     allowed_transitions.remove("right")
                 if curry == 0 and "up" in allowed_transitions:
                     allowed_transitions.remove("up")
-                if curry == GRIDDIMY - 1 and "down" in allowed_transitions:
+                if curry == dimy - 1 and "down" in allowed_transitions:
                     allowed_transitions.remove("down")
 
                 # remove the previously visited tile to avoid backtracking
@@ -74,7 +77,6 @@ class RaceTrack:
                     return False
 
                 rand_transition = allowed_transitions[np.random.randint(0, len(allowed_transitions))]
-                taken.append(rand_transition)
 
                 nextx, nexty = currx, curry
                 # the direction towards the current tile, from perspective of the next tile
@@ -181,33 +183,97 @@ class RaceTrack:
 
             # keep trying grid until it works
             is_success = addtrack(track=g)
-            i = 1
             while not is_success:
-                taken = []
-                g = [[None for x in range(GRIDDIMX)] for y in range(GRIDDIMY)]
+                g = [[None for y in range(dimy)] for x in range(dimx)]
                 is_success = addtrack(track=g)
-                i += 1
 
             # any empty tiles will become filled
-            for col in range(0, GRIDDIMX):
-                for row in range(0, GRIDDIMY):
+            for col in range(0, dimx):
+                for row in range(0, dimy):
                     if g[col][row] is None:
                         g[col][row] = Tile(col, row, "filled")
 
-            g[s[0]][s[1]] = Tile(s[0], s[1], "filled")
-            g[s[0]][s[1]].set_start()
-            g[e[0]][e[1]].set_goal()
-            self.grid = g
 
-            print(taken)
-            print(i)
+            g[s[0]][s[1]].is_start = True
+            g[s[0]][s[1]].type = "start"
+            g[e[0]][e[1]].is_goal = True
+            g[e[0]][e[1]].type = "end"
+            self.grid = g
 
         else:
             self.grid = grid
             self.end = end
             self.start = start
+            self.dimx = dimx
+            self.dimy = dimy
 
     def display(self):
         for col in self.grid:
             for tl in col:
                 tl.show()
+
+    def save_track(self):
+        if self.dimy * self.dimx > 100:
+            print("GRID TOO LARGE; MAX 100 TILES")
+            return
+
+        name = input("Save as... (.txt will be added) ")
+        while os.path.exists("tracks/" + name + ".txt"):
+            name = input("This name is taken. Save as... ")
+
+        file = open("tracks/" + name + ".txt", "w")
+
+        file.write("x:" + str(self.dimx) + "\n")
+        file.write("y:" + str(self.dimy) + "\n")
+        m = np.matrix(self.grid).transpose().A1.tolist()
+        for x, t in enumerate(m):
+            if (x % self.dimx == 0 and x != 0):
+                file.write("\n")
+            file.write(t.get_type_for_file() + " ")
+
+        #for x in range(0, len(self.grid)):
+         #   for y in range(0, len(self.grid[x])):
+
+          #      file.write(np.matrix(t.get_type_for_file() + " "))
+
+           # file.write("\n")
+
+        file.close()
+        print("Saved")
+
+
+    def load_track(self):
+        name = input("Load... (.txt will be added) ")
+        while not os.path.exists("tracks/" + name + ".txt"):
+            name = input("This file does not exist. Load.... ")
+
+        xlen = 0
+        ylen = 0
+        lgrid = []
+        st = () # start
+        en = () # end
+        with open("tracks/" + name + ".txt", "r") as file:
+            lines = file.readlines()
+            xlen = int(lines[0][lines[0].index(":") + 1].strip())
+            ylen = int(lines[1][lines[1].index(":") + 1].strip())
+
+            lgrid = [[None for x in range(xlen)] for y in range(ylen)]
+            for y, line in enumerate(lines[2:]):
+                for x, ttype in enumerate(line.strip().split(" ")):
+                    if ttype == "s":
+                        st = (x, y)
+                    if ttype == "e":
+                        en = (x, y)
+
+                    lgrid[x][y] = Tile(x, y, Tile.get_type_from_file(ttype), xlen, ylen)
+
+        lgrid[st[0]][st[1]].is_start = True
+        lgrid[en[0]][en[1]].is_goal = True
+
+        self.grid = lgrid
+        self.start = st
+        self.end = en
+        self.dimx = xlen
+        self.dimy = ylen
+
+        print("loaded")
