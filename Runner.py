@@ -3,7 +3,7 @@ from population import Population
 from mapdata import *
 from racetrack import RaceTrack
 
-p = Population(0, 0, POPSIZE)
+# p = Population(0, 0, POPSIZE)
 r = RaceTrack()
 
 # first thing to run

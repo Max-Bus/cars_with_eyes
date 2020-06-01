@@ -24,21 +24,51 @@ class RaceTrack:
             transitions = ["up", "down", "left", "right"]
 
             def addtrack(track=g, currx=s[0], curry=s[1], dir_to_prev=""):
-                allowed_transitions = transitions.copy()
+                allowed_transitions = []
+                # limit to directions that tend towards the goal (remove those and branching will be reintroduced)
+                if s[0] < e[0]:
+                    allowed_transitions.append("right")
+                elif s[0] > e[0]:
+                    allowed_transitions.append("left")
+
+                if s[1] < e[1]:
+                    allowed_transitions.append("down")
+                elif s[1] > e[1]:
+                    allowed_transitions.append("up")
+
+                if s[0] == e[0]:
+                    if s[1] < e[1] and "down" not in allowed_transitions:
+                        allowed_transitions.append("down")
+                    elif s[1] > e[1] and "up" not in allowed_transitions:
+                        allowed_transitions.append("up")
+
+                if s[1] == e[1]:
+                    if s[0] < e[0] and "right" not in allowed_transitions:
+                        allowed_transitions.append("right")
+                    elif s[0] > e[0] and "left" not in allowed_transitions:
+                        allowed_transitions.append("left")
+
 
                 # remove transitions that will go off the screen
-                if currx == 0:
+                if currx == 0 and "left" in allowed_transitions:
                     allowed_transitions.remove("left")
-                if currx == GRIDDIMX - 1:
+                if currx == GRIDDIMX - 1 and "right" in allowed_transitions:
                     allowed_transitions.remove("right")
-                if curry == 0:
+                if curry == 0 and "up" in allowed_transitions:
                     allowed_transitions.remove("up")
-                if curry == GRIDDIMY - 1:
+                if curry == GRIDDIMY - 1 and "down" in allowed_transitions:
                     allowed_transitions.remove("down")
 
                 # remove the previously visited tile to avoid backtracking
                 if dir_to_prev in allowed_transitions:
                     allowed_transitions.remove(dir_to_prev)
+
+                    # path has reached the goal
+                if currx == e[0] and curry == e[1]:
+                    return True
+
+                elif (len(allowed_transitions) == 0):
+                    return False
 
                 rand_transition = allowed_transitions[np.random.randint(0, len(allowed_transitions))]
 
@@ -141,9 +171,7 @@ class RaceTrack:
                     if newtiletype != "":
                         track[currx][curry].set_type(newtiletype)
 
-                # path has reached the goal
-                if currx == e[0] and curry == e[1]:
-                    return True
+
 
                 return addtrack(track, nextx, nexty, to_previous)
 
