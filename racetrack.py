@@ -23,7 +23,10 @@ class RaceTrack:
             # possible transitions
             transitions = ["up", "down", "left", "right"]
 
-            def addtrack(track=g, currx=s[0], curry=s[1], dir_to_prev=""):
+            taken = []
+            def addtrack(track=None, currx=s[0], curry=s[1], dir_to_prev=""):
+                if track is None:
+                    track = g
                 allowed_transitions = []
                 # limit to directions that tend towards the goal (remove those and branching will be reintroduced)
                 if s[0] < e[0]:
@@ -71,6 +74,7 @@ class RaceTrack:
                     return False
 
                 rand_transition = allowed_transitions[np.random.randint(0, len(allowed_transitions))]
+                taken.append(rand_transition)
 
                 nextx, nexty = currx, curry
                 # the direction towards the current tile, from perspective of the next tile
@@ -176,9 +180,13 @@ class RaceTrack:
                 return addtrack(track, nextx, nexty, to_previous)
 
             # keep trying grid until it works
-            is_success = addtrack()
+            is_success = addtrack(track=g)
+            i = 1
             while not is_success:
-                is_success = addtrack()
+                taken = []
+                g = [[None for x in range(GRIDDIMX)] for y in range(GRIDDIMY)]
+                is_success = addtrack(track=g)
+                i += 1
 
             # any empty tiles will become filled
             for col in range(0, GRIDDIMX):
@@ -190,6 +198,9 @@ class RaceTrack:
             g[s[0]][s[1]].set_start()
             g[e[0]][e[1]].set_goal()
             self.grid = g
+
+            print(taken)
+            print(i)
 
         else:
             self.grid = grid
