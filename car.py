@@ -9,6 +9,7 @@ class Car:
         self.width=5
         self.height=10
         self.speed=0
+        self.feelers = []
 
     def move(self, force):
         changex = self.speed * cos(radians(self.dir))
@@ -25,6 +26,10 @@ class Car:
         rotate_z(radians(self.dir))
         rect(self.x-self.width/2.0,self.y-self.height/2.0)
         pop_matrix()
+
+    def see(self, ):
+        # in the absence of a better idea
+
     def jesus_take_the_wheel(self):
         # make the car be able to see in 8 directions record distance
         # get speed and direction

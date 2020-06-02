@@ -1,6 +1,5 @@
 from p5 import *
 from mapdata import *
-
 wall_width_prop = 0.2 # ratio of wall thickness to tile size
 
 # dictionary; keys = type strings, elements = .txt format version
@@ -29,6 +28,8 @@ class Tile:
         self.is_goal = False
         self.tilewidth = SIMW / dimx
         self.tileheight = SIMH / dimy
+        # x y point pairings of the walls exposed to the race track
+        self.walls= [[]]
 
 
     def set_type(self, type):
@@ -56,11 +57,41 @@ class Tile:
 
         if self.type == "vertical":
             rect((self.gridx * self.tilewidth, self.gridy * self.tileheight), self.tilewidth * wall_width_prop, self.tileheight)
+
+            #left wall
+            x = self.gridx*self.tilewidth+self.tilewidth*wall_width_prop
+            y = self.gridy*self.tileheight
+            x1 = x
+            y1 = y + self.tileheight
+            self.addwalls(x,y,x1,y1)
+
             rect((self.gridx * self.tilewidth + self.tilewidth * (1 - wall_width_prop), self.gridy * self.tileheight), self.tilewidth * wall_width_prop, self.tileheight)
+
+            #right wall
+            x = self.gridx * self.tilewidth + self.tilewidth * (1-wall_width_prop)
+            y = self.gridy * self.tileheight
+            x1 = x
+            y1 = y + self.tileheight
+            self.addwalls(x, y, x1, y1)
 
         if self.type == "horizontal":
             rect((self.gridx * self.tilewidth, self.gridy * self.tileheight), self.tilewidth, self.tileheight * wall_width_prop)
+
+            # top wall
+            x = self.gridx * self.tilewidth
+            y = self.gridy * self.tileheight + self.tileheight*wall_width_prop
+            x1 = x+self.tilewidth
+            y1 = y
+            self.addwalls(x, y, x1, y1)
+
             rect((self.gridx * self.tilewidth, self.gridy * self.tileheight + self.tileheight * (1 - wall_width_prop)), self.tilewidth, self.tileheight * wall_width_prop)
+
+            # bottom wall
+            x = self.gridx * self.tilewidth
+            y = self.gridy * self.tileheight + self.tileheight * (1-wall_width_prop)
+            x1 = x + self.tilewidth
+            y1 = y
+            self.addwalls(x, y, x1, y1)
 
         if self.type == "filled":
             rect((self.gridx * self.tilewidth, self.gridy * self.tileheight), self.tilewidth, self.tileheight)
@@ -69,6 +100,35 @@ class Tile:
             rect((self.gridx * self.tilewidth, self.gridy * self.tileheight), self.tilewidth * wall_width_prop, self.tileheight * wall_width_prop)
             rect((self.gridx * self.tilewidth + self.tilewidth * (1 - wall_width_prop), self.gridy * self.tileheight), self.tilewidth * wall_width_prop, self.tileheight)
             rect((self.gridx * self.tilewidth, self.gridy * self.tileheight + self.tileheight * (1 - wall_width_prop)), self.tilewidth, self.tileheight * wall_width_prop)
+
+            # left wall
+            x = self.gridx * self.tilewidth + self.tilewidth * (1-wall_width_prop)
+            y = self.gridy * self.tileheight
+            x1 = x
+            y1 = y - self.tileheight
+            self.addwalls(x, y, x1, y1)
+
+            # top wall
+            x = self.gridx * self.tilewidth
+            y = self.gridy * self.tileheight + self.tileheight * wall_width_prop
+            x1 = x + self.tilewidth
+            y1 = y
+            self.addwalls(x, y, x1, y1)
+
+            # bottom wall (short)
+            x = self.gridx * self.tilewidth
+            y = self.gridy * self.tileheight + self.tileheight * (1 - wall_width_prop)
+            x1 = x + self.tilewidth*wall_width_prop
+            y1 = y
+            self.addwalls(x, y, x1, y1)
+
+            # right wall (short)
+            x = self.gridx * self.tilewidth + self.tilewidth * wall_width_prop
+            y = self.gridy * self.tileheight + self.tileheight
+            x1 = x
+            y1 = y - self.tileheight*wall_width_prop
+            self.addwalls(x, y, x1, y1)
+
 
         if self.type == "upright":
             rect((self.gridx * self.tilewidth + self.tilewidth * (1 - wall_width_prop), self.gridy * self.tileheight), self.tilewidth * wall_width_prop, self.tileheight * wall_width_prop)
@@ -111,6 +171,11 @@ class Tile:
             rect((self.gridx * self.tilewidth + self.tilewidth * (1 - wall_width_prop), self.gridy * self.tileheight + self.tileheight * (1 - wall_width_prop)), self.tilewidth * wall_width_prop, self.tileheight * wall_width_prop)
             rect((self.gridx, self.gridy), self.tilewidth * wall_width_prop, self.tileheight)
 
+
+    def addwalls(self,x,y,x1,y1):
+        self.walls.append([])
+        self.walls[len(self.walls)-1].append(point(x,y))
+        self.walls[len(self.walls) - 1].append(point(x1, y1))
 
     # determines if a point is within the track wall
     def isCollision(self, point):
