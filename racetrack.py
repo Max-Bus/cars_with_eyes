@@ -4,9 +4,206 @@ from p5 import *
 from mapdata import *
 import os
 
-
 class RaceTrack:
 
+    def __init__(self):
+        num_xtiles = PTCOUNT
+        tilewidth = SIMW / num_xtiles
+        trackwidth = SIMW / 5
+
+        start_pos = ["topleft", "topright", "bottomleft", "bottomright"][np.random.randint(0, 4)]
+
+        s = None # starting point
+        e = None # goal point
+
+        # generate the x points for the track
+        xvals = [np.random.randint(tilewidth * x, tilewidth * (x + 1)) for x in range(1, num_xtiles - 1)]
+
+        slope = [] # will store a range of the slope to get the y values
+
+        segment_list = []  # stores a list of lists containing the 4 vertices of each segment
+        # s.x > e.x and s.y < e.y
+
+        # s.x < e.x and s.y < e.y
+        if start_pos == "topleft":
+            s = Point(trackwidth / 2, trackwidth / 2)
+            e = Point(SIMW - trackwidth / 2, SIMH - trackwidth / 2)
+
+            slope = [-0.5, 1.5]
+            for i in range(len(slope)):
+                slope[i] *= 0.30
+            dy = 0.30
+            curr_segment = [Point(0, 0), Point(0, trackwidth)]
+
+            currx = 0
+            curry = 0
+            for segment in range(0, num_xtiles - 1):
+                if segment == num_xtiles - 2:
+                    segment_list.append(curr_segment)
+                    continue
+
+                curry = curry + dy * (xvals[segment] - currx)
+                currx = xvals[segment]
+
+                next1 = Point(currx, curry)
+                next2 = Point(currx, curry + (np.random.uniform(1,  1.2)) * trackwidth)
+                curr_segment.append(next2)
+                curr_segment.append(next1)
+
+                if len(curr_segment) == 4:
+                    segment_list.append(curr_segment)
+                    curr_segment = [next1, next2]
+
+                acc = 0.10 * math.cos(np.random.uniform(0, math.pi)) + 1.0 / (distance((currx, curry), (e.x, e.y)) ) + 0.0002 * distance((currx, curry), (e.x, e.y))
+                if np.random.randint(0, 5) == 0:
+                    acc -= np.random.uniform(0,  0.1)
+                dy += acc
+
+            segment_list[num_xtiles - 2].append(Point(SIMW, SIMH))
+            segment_list[num_xtiles - 2].append(Point(SIMW, SIMH - trackwidth))
+
+
+
+        elif start_pos == "topright":
+            s = Point(SIMW - trackwidth / 2, trackwidth / 2)
+            e = Point(trackwidth / 2, SIMH - trackwidth / 2)
+
+            slope = [-1.5, 0.5]
+            for i in range(len(slope)):
+                slope[i] *= 0.30
+            # reverse because we are going from right to left here
+            xvals = list(reversed(xvals))
+            dy = -0.30
+            curr_segment = [Point(SIMW, 0), Point(SIMW, trackwidth)]
+
+            currx = SIMW
+            curry = 0
+            for segment in range(0, num_xtiles - 1):
+                if segment == num_xtiles - 2:
+                    segment_list.append(curr_segment)
+                    continue
+
+
+                curry = curry + dy * (xvals[segment] - currx)
+                currx = xvals[segment]
+
+                next1 = Point(currx, curry)
+                next2 = Point(currx, curry + (np.random.uniform(1,  1.2)) * trackwidth)
+                curr_segment.append(next2)
+                curr_segment.append(next1)
+
+                if len(curr_segment) == 4:
+                    segment_list.append(curr_segment)
+                    curr_segment = [next1, next2]
+
+                acc = 0.10 * math.cos(np.random.uniform(0, math.pi)) + 1.0 / (distance((currx, curry), (e.x, e.y)) ) + 0.0002 * distance((currx, curry), (e.x, e.y))
+                if np.random.randint(0, 5) == 0:
+                    acc += np.random.uniform(- 0.1, 0)
+
+                dy -= acc
+
+
+            segment_list[num_xtiles - 2].append(Point(0, SIMH))
+            segment_list[num_xtiles - 2].append(Point(0, SIMH - trackwidth))
+
+
+        # s.x < e.x and s.y > e.y
+        elif start_pos == "bottomleft":
+            s = Point(trackwidth / 2, SIMH - trackwidth / 2)
+            e = Point(SIMW - trackwidth / 2, trackwidth / 2)
+
+            slope = [-1.5, 0.5]
+            for i in range(len(slope)):
+                slope[i] *= 0.30
+            dy = -0.30
+            curr_segment = [Point(0, SIMH - trackwidth), Point(0, SIMH)]
+
+            currx = 0
+            curry = SIMH - trackwidth
+            for segment in range(0, num_xtiles - 1):
+                if segment == num_xtiles - 2:
+                    segment_list.append(curr_segment)
+                    continue
+
+                curry = curry + dy * (xvals[segment] - currx)
+                currx = xvals[segment]
+
+                next1 = Point(currx, curry)
+                next2 = Point(currx, curry + (np.random.uniform(1,  1.2)) * trackwidth)
+                curr_segment.append(next2)
+                curr_segment.append(next1)
+
+                if len(curr_segment) == 4:
+                    segment_list.append(curr_segment)
+                    curr_segment = [next1, next2]
+
+                acc = 0.10 * math.cos(np.random.uniform(0, math.pi)) + 1.0 / (distance((currx, curry), (e.x, e.y)) ) + 0.0002 * distance((currx, curry), (e.x, e.y))
+                if np.random.randint(0, 5) == 0:
+                    acc += (np.random.uniform(- 0.1, 0))
+                dy -= acc
+
+            segment_list[num_xtiles - 2].append(Point(SIMW, trackwidth))
+            segment_list[num_xtiles - 2].append(Point(SIMW, 0))
+
+
+
+        # s.x > e.x and s.y > e.y
+        else:
+            s = Point(SIMW - trackwidth / 2, SIMH - trackwidth / 2)
+            e = Point(trackwidth / 2, trackwidth / 2)
+
+            slope = [-0.5, 1.5]
+            for i in range(len(slope)):
+                slope[i] *= 0.30
+
+            # reverse because we are going from right to left here
+            xvals = list(reversed(xvals))
+            dy = 0.30
+            curr_segment = [Point(SIMW, SIMH - trackwidth), Point(SIMW, SIMH)]
+
+            currx = SIMW
+            curry = SIMH - trackwidth
+            for segment in range(0, num_xtiles - 1):
+                if segment == num_xtiles - 2:
+                    segment_list.append(curr_segment)
+                    continue
+
+                curry = curry + dy * (xvals[segment] - currx)
+                currx = xvals[segment]
+
+                next1 = Point(currx, curry)
+                next2 = Point(currx, curry + (np.random.uniform(1,  1.1)) * trackwidth)
+                curr_segment.append(next2)
+                curr_segment.append(next1)
+
+                if len(curr_segment) == 4:
+                    segment_list.append(curr_segment)
+                    curr_segment = [next1, next2]
+
+                acc = 0.10 * math.cos(np.random.uniform(0, math.pi)) + 1.0 / (distance((currx, curry), (e.x, e.y)) ) + 0.0002 * distance((currx, curry), (e.x, e.y))
+                if np.random.randint(0, 5) == 0:
+                    acc -= np.random.uniform(0, 0.1)
+                dy += acc
+
+            segment_list[num_xtiles - 2].append(Point(0, trackwidth))
+            segment_list[num_xtiles - 2].append(Point(0, 0))
+
+
+        self.start = s
+        self.end = e
+        self.segments = segment_list
+
+
+    def display(self):
+        fill('black')
+        for seg in self.segments:
+            begin_shape()
+            for pt in seg:
+                vertex(pt.x, pt.y)
+            end_shape()
+
+
+    """
     def __init__(self, grid=None, start=None, end=None, dimx=GRIDDIMX, dimy=GRIDDIMY):
         if (grid == None or start == None or end == None):
             self.dimx = dimx
@@ -277,3 +474,4 @@ class RaceTrack:
         self.dimy = ylen
 
         print("loaded")
+    """

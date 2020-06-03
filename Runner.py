@@ -27,6 +27,5 @@ def key_pressed(event):
         redraw()
 
 
-
 run(frame_rate=30)
 
