@@ -24,6 +24,7 @@ class RaceTrack:
         segment_list = []  # stores a list of lists containing the 4 vertices of each segment
         # s.x > e.x and s.y < e.y
 
+
         # s.x < e.x and s.y < e.y
         if start_pos == "topleft":
             s = Point(trackwidth / 2, trackwidth / 2)
@@ -192,7 +193,53 @@ class RaceTrack:
         self.start = s
         self.end = e
         self.segments = segment_list
+        self.segments_for_car = self.segment_translate(self.segments)
 
+    def segment_translate(self, segments):
+        car_segs = []
+        for quads in segments:
+            car_segs.append([quads[0],quads[3]])
+            car_segs.append([quads[1],quads[2]])
+
+        return car_segs
+    def save_track(self):
+        name = input("Save as... (.txt will be added) ")
+        while os.path.exists("tracks/" + name + ".txt"):
+            name = input("This name is taken. Save as... ")
+
+        file = open("tracks/" + name + ".txt", "w")
+        for segment in self.segments:
+            for point in segment:
+                file.write(str(point.x)+","+str(point.y)+"|")
+            file.write("\n")
+        file.close()
+        print("save")
+
+    def load_track(self):
+        name = input("Load... (.txt will be added) ")
+        while not os.path.exists("tracks/" + name + ".txt"):
+            name = input("This file does not exist. Load.... ")
+
+        with open("tracks/" + name + ".txt", "r") as file:
+            alllines = file.readlines()
+            new_segments = []
+            for line in alllines:
+                line.strip()
+                points = line.split("|")
+                new_segments.append([])
+                for point in points:
+                    if point == "\n":
+                        break
+                    point.strip()
+                    vals = point.split(",")
+                    x = float(vals[0])
+                    y = float(vals[1])
+                    p = Point(x,y)
+                    new_segments[len(new_segments)-1].append(p)
+            self.segments= new_segments
+        print("loaded")
+        clear()
+        self.display()
 
     def display(self):
         fill('black')
