@@ -9,8 +9,12 @@ class Car:
         self.width=5
         self.height=10
         self.speed=0
-        self.feelers = []
+        self.feelers = [0,0,0,0,0,0,0,0]
+        self.feelerSlope = [0,45,90,135,180,225,270,315]
 
+    def update(self):
+        self.move()
+        self.drawcar()
     def move(self, force):
         changex = self.speed * cos(radians(self.dir))
         changey = self.speed * sin(radians(self.dir))
@@ -27,7 +31,45 @@ class Car:
         rect(self.x-self.width/2.0,self.y-self.height/2.0)
         pop_matrix()
 
-    def see(self, ):
+    def see(self,lines):
+
+        for line in lines:
+            for i in range(0,8):
+                p1 = line[0]
+                p2= line[1]
+                if(p1.x != p2.x):
+                    slope = (p1.y-p2.y)/(p1.x-p2.x)
+                    yint = slope * (-1 * p1.x) + p1.y
+                    angle = self.feelerSlope[i]
+                    myslope = tan(radians(angle))
+                    myyint = myslope * (-1 * self.x) + self.y
+                    if(myslope==slope):
+                        break
+
+                    interceptx = (yint-myyint)/(myslope-slope)
+                    intercepty = myslope*interceptx+self.y
+
+                    bottom = min(p1.x,p2.x)
+                    top = max(p1.x,p2.x)
+                    if not(interceptx in range(min,max)):
+                        break
+                    distance = dist(self.x,self.y,interceptx,intercepty)
+
+                    self.feelers[i]= min(distance,self.feelers[i])
+
+                else:
+                    if(cos(radians(self.feelerSlope[i]+self.dir)) == 0):
+                        break
+                    else:
+                        dx = p1.x - self.x
+                        angle=self.feelerSlope[i]
+                        slope = tan(radians(angle))
+                        dy = slope * dx
+                        distance=sqrt(dx*dx+dy*dy)
+                        if(distance<self.feelers[i]):
+                            self.feelers=distance
+
+
         # in the absence of a better idea
 
     def jesus_take_the_wheel(self):
