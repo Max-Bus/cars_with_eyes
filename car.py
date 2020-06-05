@@ -1,5 +1,5 @@
 from p5 import *
-
+from mapdata import*
 class Car:
 
     def __init__(self, startx, starty,direction):
@@ -15,7 +15,7 @@ class Car:
     def update(self):
         self.move()
         self.drawcar()
-    def move(self, force):
+    def move(self):
         changex = self.speed * cos(radians(self.dir))
         changey = self.speed * sin(radians(self.dir))
         self.x += changex
@@ -29,8 +29,11 @@ class Car:
         self.dir%=360
     def drawcar(self):
         push_matrix()
-        rotate_z(radians(self.dir))
-        rect(self.x-self.width/2.0,self.y-self.height/2.0)
+        translate(self.x,self.y,0)
+        rotate_z(self.dir)
+        fill(0,100,0)
+        rect_mode(CENTER)
+        rect((0, 0), self.width,self.height)
         pop_matrix()
 
     def see(self,lines):

@@ -2,11 +2,13 @@ from p5 import *
 from population import Population
 from mapdata import *
 from racetrack import RaceTrack
+from car import*
 import time
 
 
 # p = Population(0, 0, POPSIZE)
 r = RaceTrack()
+c = Car(50,50,0)
 
 # first thing to run
 def setup():
@@ -16,6 +18,7 @@ def setup():
 def draw():
     no_stroke()
     r.display()
+    c.drawcar()
 
 def key_pressed(event):
     if event.key == 's':
