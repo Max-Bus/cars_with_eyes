@@ -30,7 +30,7 @@ class Car:
     def drawcar(self):
         push_matrix()
         translate(self.x,self.y,0)
-        rotate_z(self.dir)
+        rotate_z(radians(self.dir))
         fill(0,100,0)
         rect_mode(CENTER)
         rect((0, 0), self.height,self.width)
@@ -63,7 +63,7 @@ class Car:
 
                     bottom = min(p1.x,p2.x)
                     top = max(p1.x,p2.x)
-                    if not(interceptx in range(min,max)):
+                    if not(interceptx in range(bottom,top)):
                         break
                     distance = dist(self.x,self.y,interceptx,intercepty)
 
