@@ -5,10 +5,9 @@ from racetrack import RaceTrack
 from car import*
 import time
 
-
-# p = Population(0, 0, POPSIZE)
 r = RaceTrack()
-c = Car(50,50,0)
+p = Population(r.start[0], r.start[1], POPSIZE)
+# c = Car(r.start[0], r.start[1], 0)
 
 # first thing to run
 def setup():
@@ -18,7 +17,7 @@ def setup():
 def draw():
     no_stroke()
     r.display()
-    c.drawcar()
+    # c.drawcar()
 
 def key_pressed(event):
     if event.key == 's':
