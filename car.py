@@ -34,6 +34,13 @@ class Car:
         fill(0,100,0)
         rect_mode(CENTER)
         rect((0, 0), self.width,self.height)
+        for i in range(len(self.feelers)):
+            stroke(0,100,0)
+            x1=self.feelers[i] * cos(radians(self.feelerSlope[i]))
+            y1=self.feelers[i] * sin(radians(self.feelerSlope[i]))
+            if(x1==0 and y1 ==0):
+                break
+            line((0,0),(x1,y1))
         pop_matrix()
 
     def see(self,lines):
@@ -73,6 +80,25 @@ class Car:
                         distance=sqrt(dx*dx+dy*dy)
                         if(distance<self.feelers[i]):
                             self.feelers=distance
+
+    def collision(self):
+        diagnal = sqrt(self.width*self.width+self.height*self.height)
+        if (self.feelers[0] < self.width/2):
+            return True
+        if (self.feelers[1] < diagnal):
+            return True
+        if (self.feelers[2] < self.height/2):
+            return True
+        if (self.feelers[3] < diagnal):
+            return True
+        if (self.feelers[4] < self.width/2):
+            return True
+        if (self.feelers[5] < diagnal):
+            return True
+        if (self.feelers[6] < self.height/2):
+            return True
+        if (self.feelers[7] < diagnal):
+            return True
 
 
         # in the absence of a better idea
