@@ -23,6 +23,8 @@ class Car:
     def throttle(self,acceleration):
         self.speed+=acceleration
     def turn(self,degrees):
+        if(degrees>45):
+            degrees=45
         self.dir += degrees
         self.dir%=360
     def drawcar(self):
