@@ -17,7 +17,17 @@ def setup():
 def draw():
     no_stroke()
     r.display()
-    # c.drawcar()
+
+    p.update()
+    p.draw()
+
+    crash_index = []
+    for index, c in enumerate(p.cars):
+        if c.collision():
+            crash_index.append(index)
+
+    for i in list(reversed(crash_index)):
+        p.cars.pop(i)
 
 def key_pressed(event):
     if event.key == 's':
