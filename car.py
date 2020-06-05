@@ -26,14 +26,14 @@ class Car:
         if(degrees>45):
             degrees=45
         self.dir += degrees
-        self.dir%=360
+        self.dir = self.dir%360
     def drawcar(self):
         push_matrix()
         translate(self.x,self.y,0)
         rotate_z(self.dir)
         fill(0,100,0)
         rect_mode(CENTER)
-        rect((0, 0), self.width,self.height)
+        rect((0, 0), self.height,self.width)
         for i in range(len(self.feelers)):
             stroke(0,100,0)
             x1=self.feelers[i] * cos(radians(self.feelerSlope[i]))
