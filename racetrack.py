@@ -270,7 +270,6 @@ class RaceTrack:
         fill(219, 127, 144)
         rect((self.start.x, self.start.y), 40, 40)
 
-
         fill(137, 224, 157)
         rect(((self.segments[PTCOUNT - 2][3].x + self.segments[PTCOUNT - 2][2].x) / 2, (self.segments[PTCOUNT - 2][3].y + self.segments[PTCOUNT - 2][2].y) / 2), 40, 40)
 
