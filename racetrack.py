@@ -224,6 +224,8 @@ class RaceTrack:
             name = input("This name is taken. Save as... ")
 
         file = open("tracks/" + name + ".txt", "w")
+        file.write(str(self.start.x) + "|" + str(self.start.y))
+        file.write("\n" + str(self.end.x) + "|" + str(self.end.y) + "\n")
         for segment in self.segments:
             for point in segment:
                 file.write(str(point.x)+","+str(point.y)+"|")
@@ -237,9 +239,14 @@ class RaceTrack:
             name = input("This file does not exist. Load.... ")
 
         with open("tracks/" + name + ".txt", "r") as file:
-            alllines = file.readlines()
+            allines = file.readlines()
+            st = allines[0].strip().split("|")
+            en = allines[1].strip().split("|")
+            self.start = Point(float(st[0]), float(st[1]))
+            self.end = Point(float(en[0]), float(en[1]))
+
             new_segments = []
-            for line in alllines:
+            for line in allines[2:]:
                 line.strip()
                 points = line.split("|")
                 new_segments.append([])

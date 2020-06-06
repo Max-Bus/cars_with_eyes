@@ -6,18 +6,18 @@ from car import*
 import time
 
 r = RaceTrack()
-p = Population(r.start[0], r.start[1], POPSIZE)
+p = Population(r, POPSIZE)
 # c = Car(r.start[0], r.start[1], 0)
 
 # first thing to run
 def setup():
     size(SIMW, SIMH)
 
+
 # runs immediately after setup
 def draw():
     no_stroke()
-    fill('gray')
-    rect((0, 0), SIMW, SIMH)
+    background(50, 30, 190)
 
     r.display()
     p.update(r.segment_translate(r.segments))
@@ -32,16 +32,16 @@ def draw():
         p.cars.pop(i)
 
 
-
-
 def key_pressed(event):
     if event.key == 's':
         r.save_track()
 
     if event.key == 'l':
         r.load_track()
-        time.sleep(2.5)
-        redraw()
+        time.sleep(3)
+        p.reload(r)
+        setup()
+
 
 
 run(frame_rate=30)
