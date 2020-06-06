@@ -7,7 +7,7 @@ import time
 
 r = RaceTrack()
 p = Population(r.start[0], r.start[1], POPSIZE)
-c = Car(r.start[0], r.start[1], 0)
+# c = Car(r.start[0], r.start[1], 0)
 
 # first thing to run
 def setup():
@@ -16,8 +16,22 @@ def setup():
 # runs immediately after setup
 def draw():
     no_stroke()
+    fill('gray')
+    rect((0, 0), SIMW, SIMH)
+
     r.display()
     p.update(r.segment_translate(r.segments))
+
+    remove = []
+    for index, c in enumerate(p.cars):
+        print("car" + str(index) + "  " + str(c.x) + "   " + str(c.y))
+        if c.collision():
+            remove.append(index)
+
+    for i in reversed(remove):
+        p.cars.pop(i)
+
+
 
 
 def key_pressed(event):

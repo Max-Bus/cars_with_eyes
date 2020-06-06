@@ -8,7 +8,7 @@ class Car:
         self.dir = direction
         self.width=5
         self.height=10
-        self.speed=0
+        self.speed=1
         self.feelers = [-1,-1,-1,-1,-1,-1,-1,-1]
         self.feelerSlope = [0,45,90,135,180,225,270,315]
 
@@ -92,23 +92,48 @@ class Car:
 
     def collision(self):
         diagnal = sqrt(self.width*self.width+self.height*self.height)
+
         if (self.feelers[0] < self.width/2):
-            return True
-        if (self.feelers[1] < diagnal):
-            return True
-        if (self.feelers[2] < self.height/2):
-            return True
-        if (self.feelers[3] < diagnal):
-            return True
-        if (self.feelers[4] < self.width/2):
-            return True
-        if (self.feelers[5] < diagnal):
-            return True
-        if (self.feelers[6] < self.height/2):
-            return True
-        if (self.feelers[7] < diagnal):
+            if self.feelers[0] == -1:
+                return False
             return True
 
+        if (self.feelers[1] < diagnal):
+            if self.feelers[1] == -1:
+                return False
+            return True
+
+        if (self.feelers[2] < self.height/2):
+            if self.feelers[2] == -1:
+                return False
+            return True
+
+        if (self.feelers[3] < diagnal):
+            if self.feelers[3] == -1:
+                return False
+            return True
+
+        if (self.feelers[4] < self.width/2):
+            if self.feelers[4] == -1:
+                return False
+            return True
+
+        if (self.feelers[5] < diagnal):
+            if self.feelers[5] == -1:
+                return False
+            return True
+
+        if (self.feelers[6] < self.height/2):
+            if self.feelers[6] == -1:
+                return False
+            return True
+
+        if (self.feelers[7] < diagnal):
+            if self.feelers[7] == -1:
+                return False
+            return True
+
+        return False
 
         # in the absence of a better idea
 
