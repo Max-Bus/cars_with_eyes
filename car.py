@@ -12,8 +12,9 @@ class Car:
         self.feelers = [-1,-1,-1,-1,-1,-1,-1,-1]
         self.feelerSlope = [0,45,90,135,180,225,270,315]
 
-    def update(self):
+    def update(self,segments):
         self.move()
+        self.see(segments)
         self.drawcar()
     def move(self):
         changex = self.speed * cos(radians(self.dir))
@@ -43,6 +44,8 @@ class Car:
             if(x1==0 and y1 ==0):
                 break
             line((0,0),(x1,y1))
+        rotate_z(-radians(self.dir))
+        translate(-self.x,-self.y)
         pop_matrix()
 
     def see(self,lines):

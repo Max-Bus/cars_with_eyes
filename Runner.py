@@ -6,7 +6,7 @@ from car import*
 import time
 
 r = RaceTrack()
-#p = Population(r.start[0], r.start[1], POPSIZE)
+p = Population(r.start[0], r.start[1], POPSIZE)
 c = Car(r.start[0], r.start[1], 0)
 
 # first thing to run
@@ -17,10 +17,7 @@ def setup():
 def draw():
     no_stroke()
     r.display()
-    c.speed=1
-    c.turn(0.25)
-    c.update()
-    c.see(r.segment_translate(r.segments))
+    p.update(r.segment_translate(r.segments))
 
 
 def key_pressed(event):

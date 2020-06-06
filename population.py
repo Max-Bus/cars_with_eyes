@@ -25,12 +25,7 @@ class Population:
 
         self.cars = [Car(startx, starty, initial_rotation) for i in range(size)]
 
-    def update(self):
-        for c in self.cars:
-            c.update()
-
-    def draw(self):
-        for c in self.cars:
-            c.drawcar()
-
+    def update(self,segments):
+        for i in range(self.size):
+            self.cars[i].update(segments)
 
