@@ -32,8 +32,8 @@ class RaceTrack:
 
             slope = [-0.5, 1.5]
             for i in range(len(slope)):
-                slope[i] *= 0.30
-            dy = 0.30
+                slope[i] *= 0.20
+            dy = 0.20
             curr_segment = [Point(0, 0), Point(0, trackwidth)]
 
             currx = 0
@@ -46,8 +46,12 @@ class RaceTrack:
                 curry = curry + dy * (xvals[segment] - currx)
                 currx = xvals[segment]
 
+                vshift = np.random.uniform(-tilewidth, tilewidth)
+                if curry + vshift > tilewidth and curry + vshift < SIMH - tilewidth:
+                    curry += 0.35 * vshift
+
                 next1 = Point(currx, curry)
-                next2 = Point(currx, curry + (np.random.uniform(1,  1.2)) * trackwidth)
+                next2 = Point(currx, curry + (np.random.uniform(0.7, 1.1)) * trackwidth)
                 curr_segment.append(next2)
                 curr_segment.append(next1)
 
@@ -71,10 +75,10 @@ class RaceTrack:
 
             slope = [-1.5, 0.5]
             for i in range(len(slope)):
-                slope[i] *= 0.30
+                slope[i] *= 0.20
             # reverse because we are going from right to left here
             xvals = list(reversed(xvals))
-            dy = -0.30
+            dy = -0.20
             curr_segment = [Point(SIMW, 0), Point(SIMW, trackwidth)]
 
             currx = SIMW
@@ -88,8 +92,12 @@ class RaceTrack:
                 curry = curry + dy * (xvals[segment] - currx)
                 currx = xvals[segment]
 
+                vshift = np.random.uniform(-tilewidth, tilewidth)
+                if curry + vshift > tilewidth and curry + vshift < SIMH - tilewidth:
+                    curry += 0.35 * vshift
+
                 next1 = Point(currx, curry)
-                next2 = Point(currx, curry + (np.random.uniform(1,  1.2)) * trackwidth)
+                next2 = Point(currx, curry + (np.random.uniform(0.7, 1.1)) * trackwidth)
                 curr_segment.append(next2)
                 curr_segment.append(next1)
 
@@ -115,8 +123,8 @@ class RaceTrack:
 
             slope = [-1.5, 0.5]
             for i in range(len(slope)):
-                slope[i] *= 0.30
-            dy = -0.30
+                slope[i] *= 0.20
+            dy = -0.20
             curr_segment = [Point(0, SIMH - trackwidth), Point(0, SIMH)]
 
             currx = 0
@@ -129,8 +137,12 @@ class RaceTrack:
                 curry = curry + dy * (xvals[segment] - currx)
                 currx = xvals[segment]
 
+                vshift = np.random.uniform(-tilewidth, tilewidth)
+                if curry + vshift > tilewidth and curry + vshift < SIMH - tilewidth:
+                    curry += 0.35 * vshift
+
                 next1 = Point(currx, curry)
-                next2 = Point(currx, curry + (np.random.uniform(1,  1.2)) * trackwidth)
+                next2 = Point(currx, curry + (np.random.uniform(0.7, 1.1)) * trackwidth)
                 curr_segment.append(next2)
                 curr_segment.append(next1)
 
@@ -155,11 +167,11 @@ class RaceTrack:
 
             slope = [-0.5, 1.5]
             for i in range(len(slope)):
-                slope[i] *= 0.30
+                slope[i] *= 0.20
 
             # reverse because we are going from right to left here
             xvals = list(reversed(xvals))
-            dy = 0.30
+            dy = 0.20
             curr_segment = [Point(SIMW, SIMH - trackwidth), Point(SIMW, SIMH)]
 
             currx = SIMW
@@ -172,8 +184,12 @@ class RaceTrack:
                 curry = curry + dy * (xvals[segment] - currx)
                 currx = xvals[segment]
 
+                vshift = np.random.uniform(-tilewidth, tilewidth)
+                if curry + vshift > tilewidth and curry + vshift < SIMH - tilewidth:
+                    curry += 0.35 * vshift
+
                 next1 = Point(currx, curry)
-                next2 = Point(currx, curry + (np.random.uniform(1,  1.1)) * trackwidth)
+                next2 = Point(currx, curry + (np.random.uniform(0.7, 1.1)) * trackwidth)
                 curr_segment.append(next2)
                 curr_segment.append(next1)
 
@@ -242,12 +258,23 @@ class RaceTrack:
         self.display()
 
     def display(self):
+        rect_mode('CENTER')
+
         fill('black')
         for seg in self.segments:
             begin_shape()
             for pt in seg:
                 vertex(pt.x, pt.y)
             end_shape()
+
+        fill(219, 127, 144)
+        rect((self.start.x, self.start.y), 40, 40)
+
+
+        fill(137, 224, 157)
+        rect(((self.segments[PTCOUNT - 2][3].x + self.segments[PTCOUNT - 2][2].x) / 2, (self.segments[PTCOUNT - 2][3].y + self.segments[PTCOUNT - 2][2].y) / 2), 40, 40)
+
+        fill('black')
 
 
     """
