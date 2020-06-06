@@ -29,24 +29,21 @@ class Car:
         self.dir += degrees
         self.dir = self.dir%360
     def drawcar(self):
-        push_matrix()
-        translate(self.x,self.y,0)
-        rotate_z(radians(self.dir))
-        fill(0,100,0)
-        rect_mode(CENTER)
-        rect((0, 0), self.height,self.width)
-        for i in range(len(self.feelers)):
-            stroke(0,100,0)
-            if(self.feelers[i]==-1):
-                continue
-            x1=self.feelers[i] * cos(radians(self.feelerSlope[i]))
-            y1=self.feelers[i] * sin(radians(self.feelerSlope[i]))
-            if(x1==0 and y1 ==0):
-                break
-            line((0,0),(x1,y1))
-        rotate_z(-radians(self.dir))
-        translate(-self.x,-self.y)
-        pop_matrix()
+        with push_matrix():
+            translate(self.x,self.y,0)
+            rotate_z(radians(self.dir))
+            fill(0,100,0)
+            rect_mode(CENTER)
+            rect((0, 0), self.height,self.width)
+            for i in range(len(self.feelers)):
+                stroke(0,100,0)
+                if(self.feelers[i]==-1):
+                    continue
+                x1=self.feelers[i] * cos(radians(self.feelerSlope[i]))
+                y1=self.feelers[i] * sin(radians(self.feelerSlope[i]))
+                if(x1==0 and y1 ==0):
+                    break
+                line((0,0),(x1,y1))
 
     def see(self,lines):
         for i in range(len(self.feelers)):
