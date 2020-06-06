@@ -20,7 +20,7 @@ def draw():
     c.speed=1
     c.turn(0.25)
     c.update()
-    #c.see(r.segment_translate(r.segments))
+    c.see(r.segment_translate(r.segments))
 
 
 def key_pressed(event):
