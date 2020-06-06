@@ -12,16 +12,16 @@ class Population:
 
         # topright
         if startx > SIMW / 2 and starty < SIMH / 2:
-            initial_rotation = 225
+            initial_rotation = 135
         # topleft
         elif startx < SIMW / 2 and starty < SIMH / 2:
-            initial_rotation = 315
+            initial_rotation = 45
         # bottomleft
         elif startx < SIMW / 2 and starty > SIMH / 2:
-            initial_rotation = 45
+            initial_rotation = 315
         # bottomright
         elif startx > SIMW / 2 and starty > SIMH / 2:
-            initial_rotation = 135
+            initial_rotation = 225
 
         self.cars = [Car(startx, starty, initial_rotation) for i in range(size)]
 

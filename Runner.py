@@ -24,7 +24,7 @@ def draw():
 
     remove = []
     for index, c in enumerate(p.cars):
-        print("car" + str(index) + "  " + str(c.x) + "   " + str(c.y))
+        #print("car" + str(index) + "  " + str(c.x) + "   " + str(c.y))
         if c.collision():
             remove.append(index)
 
