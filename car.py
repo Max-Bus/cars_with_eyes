@@ -9,8 +9,8 @@ class Car:
         self.width=5
         self.height=10
         self.speed=1
-        self.feelers = [-1,-1,-1,-1,-1,-1,-1,-1]
-        self.feelerSlope = [0,45,90,135,180,225,270,315]
+        self.feelers = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]
+        self.feelerSlope = [0,22.5,45,90,135,180,225,270,315,337.5]
 
     def update(self,segments):
         self.move()
@@ -50,7 +50,7 @@ class Car:
             self.feelers[i]= -1
 
         for line in lines:
-            for i in range(0,8):
+            for i in range(len(self.feelers)):
                 p1 = line[0]
                 p2= line[1]
 
@@ -93,44 +93,28 @@ class Car:
     def collision(self):
         diagnal = sqrt(self.width*self.width+self.height*self.height)
 
-        if (self.feelers[0] < self.width/2):
-            if self.feelers[0] == -1:
-                return False
+        if (self.feelers[0] < self.width/2 and self.feelers[0] != -1):
             return True
 
-        if (self.feelers[1] < diagnal):
-            if self.feelers[1] == -1:
-                return False
+        if (self.feelers[1] < diagnal and self.feelers[1] != -1):
             return True
 
-        if (self.feelers[2] < self.height/2):
-            if self.feelers[2] == -1:
-                return False
+        if (self.feelers[2] < self.height/2 and self.feelers[2] != -1):
             return True
 
-        if (self.feelers[3] < diagnal):
-            if self.feelers[3] == -1:
-                return False
+        if (self.feelers[3] < diagnal and self.feelers[3] != -1):
             return True
 
-        if (self.feelers[4] < self.width/2):
-            if self.feelers[4] == -1:
-                return False
+        if (self.feelers[4] < self.width/2 and self.feelers[4] != -1):
             return True
 
-        if (self.feelers[5] < diagnal):
-            if self.feelers[5] == -1:
-                return False
+        if (self.feelers[5] < diagnal and self.feelers[5] != -1):
             return True
 
-        if (self.feelers[6] < self.height/2):
-            if self.feelers[6] == -1:
-                return False
+        if (self.feelers[6] < self.height/2 and self.feelers[6] != -1):
             return True
 
-        if (self.feelers[7] < diagnal):
-            if self.feelers[7] == -1:
-                return False
+        if (self.feelers[7] < diagnal and self.feelers[7] != -1):
             return True
 
         return False
