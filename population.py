@@ -67,6 +67,8 @@ class Population:
 
             c.neural_net = NeuralNet(genome)
 
+        self.cars[0].neural_net.print_net()
+
 
 class NodeConnection:
     def __init__(self,innovation, in_ID, out_ID, weight, out_bias):
