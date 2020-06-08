@@ -102,7 +102,7 @@ class Car:
                 mysegments.append([points[n],points[i]])
         borders = self.see(mysegments)
         for i in range(len(self.feelers)):
-            if(borders[i]>self.feelers[i]):
+            if(borders[i] > self.feelers[i] and self.feelers[i] != -1):
                 return True
 
 
