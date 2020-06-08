@@ -68,7 +68,6 @@ class Population:
             c.neural_net = NeuralNet(genome)
 
 
-
 class NodeConnection:
     def __init__(self,innovation, in_ID, out_ID, weight, out_bias):
         self.innovation = innovation
