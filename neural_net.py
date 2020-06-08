@@ -22,7 +22,7 @@ class NeuralNet:
                 val = int(ID.split("_")[1])
                 if(type == "out"):
                     output_nodes.append(Node([],[],0,val))
-                else:
+                elif type == "in":
                     input_nodes.append(Node([], [], 0,val))
             else:
                 nodes[n] = Node([],[],0,n)
@@ -67,6 +67,9 @@ class NeuralNet:
 
         self.input_nodes = input_nodes
         self.output_nodes = output_nodes
+
+    # def print_net(self, indent_size):
+
 
         # out_number
         # in_number
