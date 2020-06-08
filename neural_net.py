@@ -24,8 +24,8 @@ class NeuralNet:
                     output_nodes.append(Node([],[],0,val))
                 else:
                     input_nodes.append(Node([], [], 0,val))
-
-            nodes[n] = Node([],[],0,n)
+            else:
+                nodes[n] = Node([],[],0,n)
 
         output_nodes.sort(reverse=False, key=self.compare)
         input_nodes.sort(reverse=False, key=self.compare)
