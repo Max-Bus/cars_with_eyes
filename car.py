@@ -2,7 +2,7 @@ from p5 import *
 from mapdata import*
 class Car:
 
-    def __init__(self, startx, starty,direction):
+    def __init__(self, startx, starty,direction,neural_net):
         self.x = startx
         self.y = starty
         self.dir = direction
@@ -11,10 +11,11 @@ class Car:
         self.speed=1
         self.feelers = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]
         self.feelerSlope = [0,22.5,45,90,135,180,225,270,315,337.5]
+        self.neural_net = neural_net
 
     def update(self,segments):
         self.move()
-        self.see(segments)
+        self.feelers = self.see(segments)
         self.drawcar()
     def move(self):
         changex = self.speed * cos(radians(self.dir))
@@ -46,9 +47,7 @@ class Car:
                 line((0,0),(x1,y1))
 
     def see(self,lines):
-        for i in range(len(self.feelers)):
-            self.feelers[i]= -1
-
+        feelers = [-1]*len(self.feelers)
         for line in lines:
             for i in range(len(self.feelers)):
                 p1 = line[0]
@@ -84,38 +83,29 @@ class Car:
 
                     if(bottomx <= x <= topx and bottomy <= y <= topy):
                         far = distance((self.x, self.y), (x, y))
-                        if(self.feelers[i]==-1 or far < self.feelers[i]):
-                            self.feelers[i] = far
+                        if(feelers[i]==-1 or far < feelers[i]):
+                            feelers[i] = far
 
                 else:
-                    self.feelers[i]=-1
+                    feelers[i]=-1
+        return feelers
 
     def collision(self):
-        diagnal = sqrt(self.width*self.width+self.height*self.height)
+        p1 = Point(self.x + self.width / 2, self.y + self.height / 2)
+        p2 = Point(self.x - self.width / 2, self.y + self.height / 2)
+        p3 = Point(self.x - self.width / 2, self.y - self.height / 2)
+        p4 = Point(self.x + self.width / 2, self.y - self.height / 2)
+        points = [p1,p2,p3,p4]
+        mysegments=[]
+        for n in range(4):
+            for i in range(n+1,4):
+                mysegments.append([points[n],points[i]])
+        borders = self.see(mysegments)
+        for i in range(len(self.feelers)):
+            if(borders[i]>self.feelers[i]):
+                return True
 
-        if (self.feelers[0] < self.width/2 and self.feelers[0] != -1):
-            return True
 
-        if (self.feelers[1] < diagnal and self.feelers[1] != -1):
-            return True
-
-        if (self.feelers[2] < self.height/2 and self.feelers[2] != -1):
-            return True
-
-        if (self.feelers[3] < diagnal and self.feelers[3] != -1):
-            return True
-
-        if (self.feelers[4] < self.width/2 and self.feelers[4] != -1):
-            return True
-
-        if (self.feelers[5] < diagnal and self.feelers[5] != -1):
-            return True
-
-        if (self.feelers[6] < self.height/2 and self.feelers[6] != -1):
-            return True
-
-        if (self.feelers[7] < diagnal and self.feelers[7] != -1):
-            return True
 
         return False
 

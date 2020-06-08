@@ -1,22 +1,85 @@
+from Node import Node
+
 class NeuralNet:
-    def __init__(self, layer_node_weight_pairing):
-        # layer weight pairing contains the layers as its first array with the
-        # nodes as its second dimension and there weights in the third
-        # the second and third dimensions will be the same size that of the number of neurons in that layer
-        # this is a poor way of handling a net but the most compact way of transporting it
-        # as of now the idea is to make a 2 d array of all the nodes ( this makes me think that an array wouldnt actually be that bad)
-        # after all the nodes are only doing part of a dot product and we only get rid of 1 dimension)
+    def __init__(self, genome):
 
         self.neuralnet =None
-        self.size = len(layer_node_weight_pairing)
+        self.size = len(genome)
+        self.genome = genome
+        node_IDs = {}
+        for connection in genome:
+            node_IDs.add = connection.out_ID
+            node_IDs.add = connection.in_ID
+
+        nodes = []*len(node_IDs)
+        input_nodes = []
+        output_nodes = []
+        for n in node_IDs:
+            ID = n
+            if isinstance(n,str):
+                type = ID.split("_")[0]
+                val = int(ID.split("_")[1])
+                if(type == "out"):
+                    output_nodes.append(Node([],[],0,val))
+                else:
+                    input_nodes.append(Node([], [], 0,val))
+
+            nodes[n] = Node([],[],0,n)
+
+        output_nodes.sort(reverse=False, key=self.compare)
+        input_nodes.sort(reverse=False, key=self.compare)
+
+        for connection in genome:
+            node0_ID = connection.in_ID
+            node1_ID = connection.out_ID
+            weight = connection.weight
+            bias = connection.out_bias
+            node0 = None
+            node1 = None
+
+            #finds the correct node for parent
+            if(isinstance(node0_ID,str)):
+                type = node0_ID.split("_")[0]
+                val = int(node0_ID.split("_")[1])
+                if (type == "out"):
+                    node0 = output_nodes[val]
+                else:
+                    node0 = input_nodes[val]
+            else:
+                node0 = nodes[node0_ID]
+
+            #finds node for child
+            if (isinstance(node1_ID, str)):
+                type = node1_ID.split("_")[0]
+                val = int(node1_ID.split("_")[1])
+                if (type == "out"):
+                    node1 = output_nodes[val]
+                else:
+                    node1 = input_nodes[val]
+            else:
+                node1 = nodes[node1_ID]
+
+            #sets child with weight bias and parent
+            node1.parents.append(node0)
+            node1.weights.append(weight)
+            node1.bias = bias
+
+        # out_number
+        # in_number
+
+        # go through genome and sum number of unique nodes
+        # make all new nodes put them in array by ID with inputs and outputs in a different arrays
+        # make connections by adding parent to nodes
+    def compare(self,node):
+        return node.ID
 
     def answer_to_everything(self, inputs):
-        for n, i in self.neuralnet[0], inputs:
+        for n, i in self.input_layer, inputs:
             n.val = i
 
-        output = [None]*len(self.neuralnet[self.size-1])
-        output = [n.getval() for n in self.neuralnet[self.size - 1]]
-        # for n, i in self.neuralnet[self.size-1], range(len(output)):
-        #   output= n.getval()
+        outputs = [n.getval() for n in self.output_layer]
 
-        return output
+        return outputs
+
+
+

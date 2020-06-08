@@ -25,7 +25,7 @@ class Population:
         elif startx > SIMW / 2 and starty > SIMH / 2:
             initial_rotation = 225
 
-        self.cars = [Car(startx, starty, initial_rotation) for i in range(size)]
+        self.cars = [Car(startx, starty, initial_rotation,None) for i in range(size)]
 
     def update(self,segments):
         for c in self.cars:
@@ -53,3 +53,10 @@ class Population:
         self.cars = [Car(startx, starty, initial_rotation) for i in range(self.size)]
 
 
+class Connection:
+    def __init__(self,innovation,in_ID,out_ID,weight,out_bias):
+        self.innovation = innovation
+        self.out_bias = out_bias
+        self.in_ID = in_ID
+        self.out_ID = out_ID
+        self.weight = weight

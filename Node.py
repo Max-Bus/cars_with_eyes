@@ -1,10 +1,11 @@
 from numpy import *
 class Node:
-    def __init__(self,parents,weights,bias):
+    def __init__(self,parents,weights,bias,ID):
         self.val = 0
         self.parents = parents
         self.weights = weights
         self.bias = bias
+        self.ID = ID
     def getval(self):
         if self.parents == None:
             return self.val
