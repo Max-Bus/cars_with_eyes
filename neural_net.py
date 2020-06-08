@@ -65,6 +65,9 @@ class NeuralNet:
             node1.weights.append(weight)
             node1.bias = bias
 
+        self.input_nodes = input_nodes
+        self.output_nodes = output_nodes
+
         # out_number
         # in_number
 
