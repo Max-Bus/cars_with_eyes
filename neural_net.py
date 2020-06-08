@@ -82,7 +82,10 @@ class NeuralNet:
         # make all new nodes put them in array by ID with inputs and outputs in a different arrays
         # make connections by adding parent to nodes
     def compare(self,node):
-        return node.ID
+        if(isinstance(node.ID,str)):
+            return int(node.ID.split("_")[1])
+        else:
+            return node.ID
 
     def answer_to_everything(self, inputs):
         for n, i in self.input_layer, inputs:
