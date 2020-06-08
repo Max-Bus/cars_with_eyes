@@ -63,7 +63,7 @@ class Population:
             genome = []
             for outs in range(outputs):
                 for ins in range(inputs):
-                    genome.append(NodeConnection(outs * inputs + ins, ins, outs, np.random.randn(), np.random.randn()))
+                    genome.append(NodeConnection(outs * inputs + ins, "in_" + str(ins), "out_" + str(outs), np.random.randn(), np.random.randn()))
 
             c.neural_net = NeuralNet(genome)
 

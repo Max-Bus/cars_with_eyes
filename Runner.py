@@ -7,6 +7,7 @@ import time
 
 r = RaceTrack()
 p = Population(r, POPSIZE)
+p.initialize_population()
 # c = Car(r.start[0], r.start[1], 0)
 
 # first thing to run
