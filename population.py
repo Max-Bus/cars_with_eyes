@@ -1,6 +1,7 @@
 import numpy as np
 from car import Car
 from mapdata import *
+from neural_net import *
 
 class Population:
 
@@ -31,6 +32,7 @@ class Population:
         for c in self.cars:
             c.update(segments)
 
+
     def reload(self, racetrack):
         startx = racetrack.start.x
         starty = racetrack.start.y
@@ -50,11 +52,25 @@ class Population:
         elif startx > SIMW / 2 and starty > SIMH / 2:
             initial_rotation = 225
 
-        self.cars = [Car(startx, starty, initial_rotation) for i in range(self.size)]
+        self.cars = [Car(startx, starty, initial_rotation, None) for i in range(self.size)]
 
 
-class Connection:
-    def __init__(self,innovation,in_ID,out_ID,weight,out_bias):
+    def initialize_population(self):
+        inputs = 12
+        outputs = 2
+
+        for c in self.cars:
+            genome = []
+            for outs in range(outputs):
+                for ins in range(inputs):
+                    genome.append(NodeConnection(outs * inputs + ins, ins, outs, np.random.randn(), np.random.randn()))
+
+            c.neural_net = NeuralNet(genome)
+
+
+
+class NodeConnection:
+    def __init__(self,innovation, in_ID, out_ID, weight, out_bias):
         self.innovation = innovation
         self.out_bias = out_bias
         self.in_ID = in_ID

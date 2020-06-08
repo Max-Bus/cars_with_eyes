@@ -1,4 +1,5 @@
 from Node import Node
+import numpy as np
 
 class NeuralNet:
     def __init__(self, genome):
@@ -6,12 +7,12 @@ class NeuralNet:
         self.neuralnet =None
         self.size = len(genome)
         self.genome = genome
-        node_IDs = {}
+        node_IDs = set([])
         for connection in genome:
-            node_IDs.add = connection.out_ID
-            node_IDs.add = connection.in_ID
+            node_IDs.add(connection.out_ID)
+            node_IDs.add(connection.in_ID)
 
-        nodes = []*len(node_IDs)
+        nodes = [None]*len(node_IDs)
         input_nodes = []
         output_nodes = []
         for n in node_IDs:
