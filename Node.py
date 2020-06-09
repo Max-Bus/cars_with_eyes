@@ -12,7 +12,7 @@ class Node:
         else:
             sum = 0;
             for i in range(len(self.parents)):
-                sum += self.parents[i].getval*self.weights[i]
+                sum += self.parents[i].getval()*self.weights[i]
             sum+=self.bias
             return self.sigmoid(sum)
     def sigmoid(self,x):

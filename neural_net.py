@@ -74,7 +74,18 @@ class NeuralNet:
                 print(parent.ID)
                 print("      " + str(out_node.ID))
 
+    def connectionSort(self,connection):
+        return connection.innovation
 
+    def compareNets(self,net):
+        if len(net.genome)!=len(self.genome):
+            return False
+        net.genome.sort(reverse=False, key=self.connectionSort)
+        self.genome.sort(reverse=False, key=self.connectionSort)
+        for i in range(len(self.genome)):
+            if(net.genome[i].innovation != self.genome[i].innovation):
+                False
+        return True
         # out_number
         # in_number
 
@@ -88,10 +99,10 @@ class NeuralNet:
             return node.ID
 
     def answer_to_everything(self, inputs):
-        for n, i in self.input_layer, inputs:
-            n.val = i
+        for i in range(len(inputs)):
+            self.input_nodes[i].val = inputs[i]
 
-        outputs = [n.getval() for n in self.output_layer]
+        outputs = [n.getval() for n in self.output_nodes]
 
         return outputs
 

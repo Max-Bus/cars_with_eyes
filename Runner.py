@@ -8,6 +8,10 @@ import time
 r = RaceTrack()
 p = Population(r, POPSIZE)
 p.initialize_population()
+FRAME_RATE = 30
+MAX_TIME = FRAME_RATE*6
+TIMER = 0
+
 # c = Car(r.start[0], r.start[1], 0)
 
 # first thing to run
@@ -17,11 +21,16 @@ def setup():
 
 # runs immediately after setup
 def draw():
+    global TIMER
     no_stroke()
     background(50, 30, 190)
 
     r.display()
-    p.update(r.segment_translate(r.segments))
+    if(TIMER < MAX_TIME):
+        p.update(r.segment_translate(r.segments))
+    else:
+        p.next_gen()
+        timer = 0
 
     remove = []
     for index, c in enumerate(p.cars):
@@ -31,6 +40,8 @@ def draw():
 
     for i in reversed(remove):
         p.cars.pop(i)
+
+    TIMER+=1
 
 
 def key_pressed(event):
@@ -45,5 +56,5 @@ def key_pressed(event):
 
 
 
-run(frame_rate=30)
+run(frame_rate=FRAME_RATE)
 
