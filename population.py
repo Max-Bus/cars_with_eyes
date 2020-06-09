@@ -111,7 +111,7 @@ class Population:
 
     def update(self,segments):
         for c in self.cars:
-            c.update(segments)
+            c.update(segments, self.goal)
 
 
     def reload(self, racetrack):
