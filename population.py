@@ -31,8 +31,64 @@ class Population:
 
         self.cars = [Car(startx, starty, initial_rotation,None) for i in range(size)]
 
+
+    def crossover(self, car1, car2):
+        # car1 more fit
+
+        genome1 = car1.neural_net.genome
+        genome2 = car2.neural_net.genome
+
+        genome1.sort(reverse=False, key=self.connectionSort)
+        genome2.sort(reverse=False, key=self.connectionSort)
+
+        # in both (randomly choose from 1 if gene is common between the two)
+        # disjoint = not in other car (all disjoints passed down)
+        # excess : from longer genome (larger innov num than other car) (excess passed from fitter car)
+
+        new_genome = []
+        excess = []
+        max_innov_genome1 = 0
+        max_innov_genome2 = 0
+        for i, j in range(len(genome1)), range(len(genome2)):
+            max_innov_genome1 += 1
+            max_innov_genome2 += 1
+
+
+            # overlap
+            if genome1[i].innovation == genome2[j].innovation:
+                if np.random.randint(0, 2) == 0:
+                    new_genome.append(new_genome[i])
+                else:
+                    new_genome.append(genome2[j])
+
+            # disjoint
+            elif genome1[i].innovation != genome2[j].innovation:
+                if genome1[i].innovation < genome2[j].innovation:
+                    new_genome.append(genome1[i])
+                    j -= 1
+
+                else:
+                    new_genome.append(genome1[j])
+                    i -= 1
+
+            # car1 genome is longer
+            if j == len(genome2):
+                excess = genome1[i:]
+
+        new_genome += excess
+        return new_genome
+
+
+
+    def connectionSort(self,connection):
+        return connection.innovation
+
+
     def next_gen(self):
+        # top 2 in each species, top #3 overall
         species = self.speciate()
+        pool = []
+
 
 
     def speciate(self):
@@ -48,6 +104,8 @@ class Population:
                     species[num_species].append(self.cars[i])
                     speciated.append(j)
             num_species+=1
+
+        return species
 
 
 
