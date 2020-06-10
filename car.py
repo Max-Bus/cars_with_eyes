@@ -8,15 +8,25 @@ class Car:
         self.dir = direction
         self.width=5
         self.height=10
-        self.speed=1
+        self.speed=0
         self.feelers = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]
         self.feelerSlope = [0,22.5,45,90,135,180,225,270,315,337.5]
         self.neural_net = neural_net
 
+        p1 = Point(self.x + self.width / 2, self.y + self.height / 2)
+        p2 = Point(self.x - self.width / 2, self.y + self.height / 2)
+        p3 = Point(self.x - self.width / 2, self.y - self.height / 2)
+        p4 = Point(self.x + self.width / 2, self.y - self.height / 2)
+        points = [p1, p2, p3, p4]
+        mysegments = []
+        for n in range(4):
+            for i in range(n + 1, 4):
+                mysegments.append([points[n], points[i]])
+        self.borders = self.see(mysegments)
+
     def update(self,segments,goal):
         self.move()
         self.feelers = self.see(segments)
-        self.drawcar()
         self.jesus_take_the_wheel(goal)
     def move(self):
         changex = self.speed * cos(radians(self.dir))
@@ -104,18 +114,9 @@ class Car:
 
 
 
-        p1 = Point(self.x + self.width / 2, self.y + self.height / 2)
-        p2 = Point(self.x - self.width / 2, self.y + self.height / 2)
-        p3 = Point(self.x - self.width / 2, self.y - self.height / 2)
-        p4 = Point(self.x + self.width / 2, self.y - self.height / 2)
-        points = [p1,p2,p3,p4]
-        mysegments=[]
-        for n in range(4):
-            for i in range(n+1,4):
-                mysegments.append([points[n],points[i]])
-        borders = self.see(mysegments)
+
         for i in range(len(self.feelers)):
-            if(borders[i]+3 > self.feelers[i] and self.feelers[i] != -1):
+            if(self.borders[i]+3 > self.feelers[i] and self.feelers[i] != -1):
                 return True
 
 

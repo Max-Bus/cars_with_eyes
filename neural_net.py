@@ -27,16 +27,14 @@ class NeuralNet:
             else:
                 nodes[n] = Node([],[],0,n)
 
-        output_nodes.sort(reverse=False, key=self.compare)
-        input_nodes.sort(reverse=False, key=self.compare)
+        output_nodes.sort(reverse=True, key=self.compare)
+        input_nodes.sort(reverse=True, key=self.compare)
 
         for connection in genome:
             node0_ID = connection.in_ID
             node1_ID = connection.out_ID
             weight = connection.weight
             bias = connection.out_bias
-            node0 = None
-            node1 = None
 
             #finds the correct node for parent
             if(isinstance(node0_ID,str)):
@@ -80,8 +78,8 @@ class NeuralNet:
     def compareNets(self,net):
         if len(net.genome)!=len(self.genome):
             return False
-        net.genome.sort(reverse=False, key=self.connectionSort)
-        self.genome.sort(reverse=False, key=self.connectionSort)
+        net.genome.sort(reverse=True, key=self.connectionSort)
+        self.genome.sort(reverse=True, key=self.connectionSort)
         for i in range(len(self.genome)):
             if(net.genome[i].innovation != self.genome[i].innovation):
                 False

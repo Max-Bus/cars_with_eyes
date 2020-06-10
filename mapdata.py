@@ -2,6 +2,6 @@ SIMH = 900 # frame pixel height
 SIMW = 1000 # frame pizel width
 GRIDDIMX = 5 # number of x tiles
 GRIDDIMY = 5 # number of y tiles
-POPSIZE = 20 # population size
+POPSIZE = 100 # population size
 
 PTCOUNT = 10 # number of track segments
