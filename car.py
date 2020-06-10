@@ -60,11 +60,13 @@ class Car:
                 if(x1==0 and y1 ==0):
                     break
                 line((0,0),(x1,y1))
-            '''
+            #'''
 
     def see(self,lines):
         feelers = [-1]*len(self.feelers)
         for i in range(len(self.feelers)):
+            if self.feelers[i]!=-1:
+                continue
             for line in lines:
                 p1 = line[0]
                 p2= line[1]
@@ -91,10 +93,16 @@ class Car:
                     bottomy = min(p2.y,p1.y)
                     topy = max(p2.y, p1.y)
 
-                    if((p3.x < self.x and x > self.x) or (p3.x > self.x and x < self.x)):
-                        continue
-
-                    if ((p3.y < self.y and y > self.y) or (p3.y > self.y and y < self.y)):
+                    if((p3.x < self.x and x > self.x) or (p3.x > self.x and x < self.x)
+                            or (p3.y < self.y and y > self.y) or (p3.y > self.y and y < self.y)):
+                        absangle+=180
+                        absangle%=360
+                        for k in range(len(self.feelers)):
+                            if self.feelerSlope[i]==absangle:
+                                if (bottomx <= x <= topx and bottomy <= y <= topy):
+                                    far = distance((self.x, self.y), (x, y))
+                                    if (feelers[k] == -1 or far < feelers[k]):
+                                        feelers[k] = far
                         continue
 
                     if(bottomx <= x <= topx and bottomy <= y <= topy):
@@ -117,7 +125,7 @@ class Car:
 
 
         for i in range(len(self.feelers)):
-            if(self.borders[i]+3 > self.feelers[i] and self.feelers[i] != -1):
+            if(self.borders[i]+5 > self.feelers[i] and self.feelers[i] != -1):
                 return True
 
 
