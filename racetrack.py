@@ -206,8 +206,8 @@ class RaceTrack:
             segment_list[num_xtiles - 2].append(Point(0, 0))
 
 
-        self.start = s
-        self.end = e
+        self.start = Point((segment_list[0][0].x + segment_list[0][1].x) / 2, (segment_list[0][0].y + segment_list[0][1].y) / 2)
+        self.end = Point((segment_list[len(segment_list) - 1][3].x + segment_list[len(segment_list) - 1][2].x) / 2, (segment_list[len(segment_list) - 1][3].y + segment_list[len(segment_list) - 1][2].y) / 2)
         self.segments = segment_list
         self.segments_for_car = self.segment_translate(self.segments)
 
@@ -267,7 +267,7 @@ class RaceTrack:
     def display(self):
         rect_mode('CENTER')
 
-        fill('black')
+        fill(145, 132, 134)
         for seg in self.segments:
             begin_shape()
             for pt in seg:
@@ -275,10 +275,10 @@ class RaceTrack:
             end_shape()
 
         fill(219, 127, 144)
-        rect((self.start.x, self.start.y), 40, 40)
+        rect((self.start.x, self.start.y), 40, 100)
 
-        fill(137, 224, 157)
-        rect(((self.segments[PTCOUNT - 2][3].x + self.segments[PTCOUNT - 2][2].x) / 2, (self.segments[PTCOUNT - 2][3].y + self.segments[PTCOUNT - 2][2].y) / 2), 40, 40)
+        fill(55, 214, 0)
+        rect((self.end.x, self.end.y), 40, 100)
 
         fill('black')
 

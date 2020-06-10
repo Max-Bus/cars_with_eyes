@@ -23,7 +23,7 @@ def setup():
 def draw():
     global TIMER
     no_stroke()
-    background(50, 30, 190)
+    background(90, 230, 130)
 
     r.display()
     if(TIMER < MAX_TIME):
