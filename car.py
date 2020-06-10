@@ -65,7 +65,7 @@ class Car:
     def see(self,lines):
         feelers = [-1]*len(self.feelers)
         for i in range(len(self.feelers)):
-            if self.feelers[i]!=-1:
+            if feelers[i]!=-1:
                 continue
             for line in lines:
                 p1 = line[0]
@@ -98,7 +98,7 @@ class Car:
                         absangle+=180
                         absangle%=360
                         for k in range(len(self.feelers)):
-                            if self.feelerSlope[i]==absangle:
+                            if abs(self.feelerSlope[i]-absangle)<1:
                                 if (bottomx <= x <= topx and bottomy <= y <= topy):
                                     far = distance((self.x, self.y), (x, y))
                                     if (feelers[k] == -1 or far < feelers[k]):
