@@ -228,11 +228,11 @@ class Population:
 
 
 
-    def update(self,segments):
+    def update(self,segments,see):
 
         self.cars.sort(reverse=True,key=self.fitness)
         for c in self.cars:
-            c.update(segments,self.goal)
+            c.update(segments,self.goal,see)
             c.drawcar()
 
 

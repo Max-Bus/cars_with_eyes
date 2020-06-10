@@ -24,9 +24,10 @@ class Car:
                 mysegments.append([points[n], points[i]])
         self.borders = self.see(mysegments)
 
-    def update(self,segments,goal):
+    def update(self,segments,goal,see):
         self.move()
-        self.feelers = self.see(segments)
+        if(see):
+            self.feelers = self.see(segments)
         self.jesus_take_the_wheel(goal)
     def move(self):
         changex = self.speed * cos(radians(self.dir))
@@ -63,8 +64,8 @@ class Car:
 
     def see(self,lines):
         feelers = [-1]*len(self.feelers)
-        for line in lines:
-            for i in range(len(self.feelers)):
+        for i in range(len(self.feelers)):
+            for line in lines:
                 p1 = line[0]
                 p2= line[1]
 
