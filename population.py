@@ -12,6 +12,7 @@ class Population:
 
 
     def __init__(self, racetrack, size):
+        self.changes=[]
         self.size = size
         self.innovation = 0
         startx = racetrack.start.x
@@ -33,8 +34,8 @@ class Population:
         genome1 = car1.neural_net.genome
         genome2 = car2.neural_net.genome
 
-        genome1.sort(reverse=True, key=self.connectionSort)
-        genome2.sort(reverse=True, key=self.connectionSort)
+        genome1.sort(reverse=False, key=self.connectionSort)
+        genome2.sort(reverse=False, key=self.connectionSort)
 
         # in both (randomly choose from 1 if gene is common between the two)
         # disjoint = not in other car (all disjoints passed down)
@@ -54,23 +55,24 @@ class Population:
             # overlap
             if genome1[i].innovation == genome2[j].innovation:
                 if np.random.randint(0, 2) == 0:
-                    new_genome.append(genome1[i])
+                    new_genome.append(genome1[i].copy())
                 else:
-                    new_genome.append(genome2[j])
+                    new_genome.append(genome2[j].copy())
 
             # disjoint
             elif genome1[i].innovation != genome2[j].innovation:
                 if genome1[i].innovation < genome2[j].innovation:
-                    new_genome.append(genome1[i])
+                    new_genome.append(genome1[i].copy())
                     j -= 1
 
                 else:
-                    new_genome.append(genome2[j])
+                    new_genome.append(genome2[j].copy())
                     i -= 1
 
             # car1 genome is longer
             if j == len(genome2)-1:
-                excess = genome1[i:]
+                if(i!=len(genome1)-1):
+                    excess = genome1[i:].copy()
 
             i+=1
             j+=1
@@ -85,6 +87,8 @@ class Population:
 
 
     def next_gen(self):
+        print("cars:" + str(len(self.cars)))
+        print("Innov:"+str(self.innovation))
         if(len(self.cars) == 0):
             ratio = (self.goal.y - self.start.y) / (self.goal.x - self.start.x)
             angle = degrees(atan(ratio))
@@ -97,16 +101,22 @@ class Population:
         # top 2 in each species, top #3 overall
         species = self.speciate()
         numspecies = len(species)
+        print("Species:"+str(numspecies))
         pool = []
         for specie in species:
             specie.sort(reverse=True, key=self.fitness)
-            pool.append(specie[0])
+            for i in range(4):
+                pool.append(specie[0])
 
         self.cars.sort(reverse=True, key=self.fitness)
-        best = self.cars[:min(5,len(self.cars))]
+        best = self.cars[:min(int(0.2*self.size),len(self.cars))]
+
         pool += best
 
+
         nextGEN = []
+        if (self.fitness(self.cars[0]) == 1000):
+            nextGEN.append(self.cars[0])
         for i in range(self.size):
 
             randcar = pool[np.random.randint(0,len(pool))]
@@ -132,9 +142,9 @@ class Population:
         # 15% change weight
         # 5% add node/connection
         rand = np.random.randint(100)
-        if(rand<80):
+        if(rand<0):
             return genome
-        elif(rand<95):
+        elif(rand<50):
             gene =genome[np.random.randint(len(genome))]
             gene.weight *= (1 + np.random.uniform(-0.1,0.1))
         else:
@@ -150,9 +160,10 @@ class Population:
                 child = gene.out_ID
 
                 conn1 = NodeConnection(self.innovation,parent,biggest_node+1,np.random.uniform(-1,1),np.random.uniform(-1,1))
-                self.innovation += 1
+                self.innovCheck(conn1)
+
                 conn2 = NodeConnection(self.innovation,biggest_node+1,child,np.random.uniform(-1,1),np.random.uniform(-1,1))
-                self.innovation += 1
+                self.innovCheck(conn2)
 
                 genome.remove(gene)
                 genome.append(conn1)
@@ -176,14 +187,24 @@ class Population:
                     return
                 in_id = random.choice(list(all_possible_parents))
                 newconn = NodeConnection(self.innovation,in_id,out,np.random.uniform(-1,1),np.random.uniform(-1,1))
-                self.innovation+=1
+                self.innovCheck(newconn)
+
                 genome.append(newconn)
 
+    def innovCheck(self,conn):
+        changed = False
+        for i in range(len(self.changes)):
+            if (conn.isSameConn(self.changes[i])):
+                conn.innovation = self.changes[i].innovation
+                changed = True
+        if (not changed):
+            self.innovation += 1
+            self.changes.append(conn)
 
     def fitness(self,car):
         far = distance((car.x,car.y),self.goal)
         if far<=10:
-            return 10000
+            return 1000
 
         return -1*far
 
@@ -196,9 +217,10 @@ class Population:
             if(i in speciated):
                 continue
             species.append([])
+            species[num_species].append(self.cars[i])
             for j in range(i,len(self.cars)):
-                if self.cars[i].neural_net.compareNets(self.cars[i].neural_net):
-                    species[num_species].append(self.cars[i])
+                if self.cars[i].neural_net.compareNets(self.cars[j].neural_net):
+                    species[num_species].append(self.cars[j])
                     speciated.append(j)
             num_species+=1
 
@@ -207,6 +229,8 @@ class Population:
 
 
     def update(self,segments):
+
+        self.cars.sort(reverse=True,key=self.fitness)
         for c in self.cars:
             c.update(segments,self.goal)
             c.drawcar()
@@ -237,12 +261,12 @@ class Population:
 
     def initialize_population(self):
 
-
+        self.innovation = inputs*outputs
         for c in self.cars:
             genome = []
             for outs in range(outputs):
                 for ins in range(inputs):
-                    self.innovation+=1
+
                     genome.append(NodeConnection(outs * inputs + ins, "in_" + str(ins), "out_" + str(outs), np.random.randn(), np.random.randn()))
 
             c.neural_net = NeuralNet(genome)
@@ -256,3 +280,9 @@ class NodeConnection:
         self.in_ID = in_ID
         self.out_ID = out_ID
         self.weight = weight
+    def isSameConn(self, other):
+        if(isinstance(other,NodeConnection)):
+            return str(self.in_ID) == str(other.in_ID) and str(self.out_ID) == str(other.out_ID)
+        return False
+    def copy(self):
+        return NodeConnection(self.innovation, self.in_ID, self.out_ID, self.weight, self.out_bias)

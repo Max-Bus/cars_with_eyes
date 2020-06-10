@@ -132,6 +132,9 @@ class Car:
         # take the output of the neural net
         # inputs = 10 feelers, speed, direction, x, y
         inputs = self.feelers.copy()
+        for i in range(len(inputs)):
+            if(inputs[i]==-1):
+                inputs[i]=10000
         inputs.append(self.speed)
         inputs.append(self.dir)
         inputs.append(goal.x-self.x)

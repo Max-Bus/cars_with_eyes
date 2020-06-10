@@ -78,8 +78,8 @@ class NeuralNet:
     def compareNets(self,net):
         if len(net.genome)!=len(self.genome):
             return False
-        net.genome.sort(reverse=True, key=self.connectionSort)
-        self.genome.sort(reverse=True, key=self.connectionSort)
+        net.genome.sort(reverse=False, key=self.connectionSort)
+        self.genome.sort(reverse=False, key=self.connectionSort)
         for i in range(len(self.genome)):
             if(net.genome[i].innovation != self.genome[i].innovation):
                 False

@@ -14,6 +14,6 @@ class Node:
             for i in range(len(self.parents)):
                 sum += self.parents[i].getval()*self.weights[i]
             sum+=self.bias
-            return self.sigmoid(sum)
+            return tanh(sum)
     def sigmoid(self,x):
         return 1/(1+math.exp(-x))

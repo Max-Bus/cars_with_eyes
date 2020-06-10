@@ -4,11 +4,12 @@ from mapdata import *
 from racetrack import RaceTrack
 from car import*
 import time
+import cProfile
 
 r = RaceTrack()
 p = Population(r, POPSIZE)
 p.initialize_population()
-FRAME_RATE = 60
+FRAME_RATE = 30
 MAX_TIME = FRAME_RATE
 TIMER = 0
 
@@ -62,4 +63,3 @@ def key_pressed(event):
 
 
 run(frame_rate=FRAME_RATE)
-
