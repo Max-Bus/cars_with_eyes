@@ -11,7 +11,7 @@ p.initialize_population()
 FRAME_RATE = 30
 MAX_TIME = FRAME_RATE
 TIMER = 0
-MAXGEN = 10
+MAXGEN = 1000
 
 # c = Car(r.start[0], r.start[1], 0)
 
@@ -32,7 +32,7 @@ def draw():
 
     r.display()
     if(TIMER < MAX_TIME and len(p.cars)>0):
-        p.update(r.segment_translate(r.segments),True)
+        p.update(r.segment_translate(r.segments),TIMER%2==0)
     else:
         if(len(p.cars)>0.6*p.size):
             MAX_TIME += 10
