@@ -26,6 +26,7 @@ class Population:
             angle += 180
 
         self.cars = [Car(startx, starty, angle,None) for i in range(size)]
+        self.crashed_cars = []
 
 
     def crossover(self, car1, car2):
@@ -88,32 +89,27 @@ class Population:
 
     def next_gen(self):
         print("cars:" + str(len(self.cars)))
-        print("Innov:"+str(self.innovation))
-        if(len(self.cars) == 0):
-            ratio = (self.goal.y - self.start.y) / (self.goal.x - self.start.x)
-            angle = degrees(atan(ratio))
-            if (self.goal.x < self.start.x):
-                angle += 180
-            self.cars = [Car(self.start.x,self.start.y,angle, None) for i in range(self.size)]
-            self.initialize_population()
-            return
+        print("Innov:" + str(self.innovation))
+
+        self.cars += self.crashed_cars
 
         # top 2 in each species, top #3 overall
         species = self.speciate()
         numspecies = len(species)
-        print("Species:"+str(numspecies))
+        print("Species:" + str(numspecies))
         pool = []
         for specie in species:
             specie.sort(reverse=True, key=self.fitness)
-            for i in range(4):
-                pool.append(specie[0])
+            for i in range(min(4, len(specie))):
+                pool.append(specie[i])
 
         self.cars.sort(reverse=True, key=self.fitness)
         best = self.cars[:min(int(0.2*self.size),len(self.cars))]
 
         pool += best
+        pool += best
 
-
+        # car that has made it to goal
         nextGEN = []
         if (self.fitness(self.cars[0]) == 1000):
             nextGEN.append(self.cars[0])
@@ -134,8 +130,45 @@ class Population:
                 angle +=180
             nextGEN.append(Car(self.start.x,self.start.y,angle,net))
 
-
         self.cars = nextGEN
+
+
+    def next_gen2(self, sub_pool):
+
+        self.sub_pool.sort(reverse=True, key=self.fitness)
+        best = self.sub_pool[:int(0.2 * len(sub_pool))]
+
+        pool = []
+        for i in range(len(best)):
+            pool += [best[i]] * (len(best) - i)
+
+        # car that has made it to goal
+        nextGEN = []
+        if (self.fitness(self.cars[0]) == 1000):
+            nextGEN.append(self.cars[0])
+        for i in range(self.size):
+
+            randcar = pool[np.random.randint(0, len(pool))]
+            randcar2 = pool[np.random.randint(0, len(pool))]
+            parents = [randcar, randcar2]
+            parents.sort(reverse=True, key=self.fitness)
+            genome = self.crossover(parents[0], parents[1])
+
+            self.mutation(genome)
+
+            net = NeuralNet(genome)
+            ratio = (self.goal.y - self.start.y) / (self.goal.x - self.start.x)
+            angle = degrees(atan(ratio))
+            if (self.goal.x < self.start.x):
+                angle += 180
+            nextGEN.append(Car(self.start.x, self.start.y, angle, net))
+
+        return nextGEN
+
+
+
+
+
 
     def mutation(self,genome):
         # 80% nothing happens
@@ -144,7 +177,7 @@ class Population:
         rand = np.random.randint(100)
         if(rand<0):
             return genome
-        elif(rand<50):
+        elif(rand<70):
             gene =genome[np.random.randint(len(genome))]
             gene.weight *= (1 + np.random.uniform(-0.1,0.1))
         else:
@@ -171,17 +204,25 @@ class Population:
             else:
                 all_possible_parents = set()
                 out = 0
-                junk_indicies =[]
-                while(len(all_possible_parents) == 0 and len(junk_indicies) < len(genome)):
+                junk_indicies = []
+                while len(all_possible_parents) == 0 and len(junk_indicies) < len(genome):
                     num =np.random.randint(len(genome))
+                    all_possible_parents = set()
+
                     while (num in junk_indicies):
                         num = np.random.randint(len(genome))
+
                     gene = genome[num]
                     out = gene.out_ID
                     for g in genome:
                         if(g.out_ID == gene.out_ID):
                             continue
+
+                        if g.in_ID == gene.out_ID:
+                            continue
+
                         all_possible_parents.add(g.in_ID)
+
 
                 if(len(junk_indicies)<len(genome)):
                     return
@@ -202,11 +243,15 @@ class Population:
             self.changes.append(conn)
 
     def fitness(self,car):
+        penalty = 0
+        if car.is_crashed:
+            penalty = 500
+
         far = distance((car.x,car.y),self.goal)
         if far<=10:
-            return 1000
+            return 1000 - penalty
 
-        return -1*far
+        return -1*far - penalty
 
 
     def speciate(self):

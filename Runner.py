@@ -49,7 +49,9 @@ def draw():
             remove.append(index)
 
     for i in reversed(remove):
-        p.cars.pop(i)
+        removed_car = p.cars.pop(i)
+        removed_car.is_crashed = True
+        p.crashed_cars.append(removed_car)
 
     TIMER+=1
 
