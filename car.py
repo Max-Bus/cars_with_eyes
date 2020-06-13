@@ -12,6 +12,7 @@ class Car:
         self.feelers = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]
         self.feelerSlope = [0,22.5,45,90,135,180,225,270,315,337.5]
         self.neural_net = neural_net
+        self.sector=0
         self.is_crashed = False
 
         p1 = Point(self.x + self.width / 2, self.y + self.height / 2)

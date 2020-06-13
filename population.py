@@ -15,6 +15,8 @@ class Population:
         self.changes=[]
         self.size = size
         self.innovation = 0
+        self.success = 0
+        self.checkpoints = racetrack.checkpoints
         startx = racetrack.start.x
         starty = racetrack.start.y
         self.start = Point(startx,starty)
@@ -249,9 +251,15 @@ class Population:
 
         far = distance((car.x,car.y),self.goal)
         if far<=10:
+            file = open("cars/" + str(self.success) + ".txt", "w")
+            for gene in car.neural_net.genome:
+                file.write(str(gene) + "\n")
+            file.close()
+            self.success += 1
             return 1000 - penalty
 
-        return -1*far - penalty
+        checkpoint_reward = 900.0*car.sector/len(self.checkpoints)
+        return -1*far - penalty + checkpoint_reward
 
 
     def speciate(self):
@@ -277,7 +285,13 @@ class Population:
 
         self.cars.sort(reverse=True,key=self.fitness)
         for c in self.cars:
-            c.update(segments,self.goal,see)
+            if(self.goal.x==0 and c.x <= self.checkpoints[c.sector].x):
+                c.sector+=1
+
+            if (self.goal.x != 0 and c.x >= self.checkpoints[c.sector].x):
+                c.sector += 1
+
+            c.update(segments,self.checkpoints[c.sector],see)
             c.drawcar()
 
 
@@ -304,7 +318,17 @@ class Population:
 
 
 
-    def initialize_population(self):
+    def initialize_population(self,From_save):
+        if(From_save != None):
+            genome=[]
+            self.size=1
+            with open("cars/"+From_save+".txt", "r") as file:
+                allines = file.readlines()
+                for i in range(len(allines)):
+                    parts = allines[i].strip().split(",")
+                    genome.append(NodeConnection(parts[0],parts[1],parts[2],parts[3],parts[4],parts[5],parts[6]))
+            self.cars[0].neural_net= NeuralNet(genome)
+
 
         self.innovation = inputs*outputs
         for c in self.cars:
@@ -312,22 +336,26 @@ class Population:
             for outs in range(outputs):
                 for ins in range(inputs):
 
-                    genome.append(NodeConnection(outs * inputs + ins, "in_" + str(ins), "out_" + str(outs), np.random.randn(), np.random.randn()))
+                    genome.append(NodeConnection(outs * inputs + ins, "in_" + str(ins), "out_" + str(outs), np.random.randn(), np.random.randn(),0,-1))
 
             c.neural_net = NeuralNet(genome)
 
 
 
 class NodeConnection:
-    def __init__(self,innovation, in_ID, out_ID, weight, out_bias):
+    def __init__(self,innovation, in_ID, out_ID, weight, out_bias,inlayer,outlayer):
         self.innovation = innovation
         self.out_bias = out_bias
         self.in_ID = in_ID
         self.out_ID = out_ID
         self.weight = weight
+        self.in_layer = inlayer
+        self.out_layer = outlayer
     def isSameConn(self, other):
         if(isinstance(other,NodeConnection)):
             return str(self.in_ID) == str(other.in_ID) and str(self.out_ID) == str(other.out_ID)
         return False
     def copy(self):
         return NodeConnection(self.innovation, self.in_ID, self.out_ID, self.weight, self.out_bias)
+    def __str__(self):
+        return str(self.innovation)+","+str(self.out_ID)+","+str(self.in_ID)+","+str(self.weight)+","+str(self.out_bias)+"," +str(self.in_layer)+","+ str(self.out_layer)

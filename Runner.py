@@ -7,7 +7,7 @@ import time
 
 r = RaceTrack()
 p = Population(r, POPSIZE)
-p.initialize_population()
+p.initialize_population(None)
 FRAME_RATE = 30
 MAX_TIME = FRAME_RATE
 TIMER = 0

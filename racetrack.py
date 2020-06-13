@@ -69,6 +69,7 @@ class RaceTrack:
 
 
 
+
         elif start_pos == "topright":
             s = Point(SIMW - trackwidth / 2, trackwidth / 2)
             e = Point(trackwidth / 2, SIMH - trackwidth / 2)
@@ -209,6 +210,17 @@ class RaceTrack:
         self.start = Point((segment_list[0][0].x + segment_list[0][1].x) / 2, (segment_list[0][0].y + segment_list[0][1].y) / 2)
         self.end = Point((segment_list[len(segment_list) - 1][3].x + segment_list[len(segment_list) - 1][2].x) / 2, (segment_list[len(segment_list) - 1][3].y + segment_list[len(segment_list) - 1][2].y) / 2)
         self.segments = segment_list
+
+        self.checkpoints = []
+        for section in self.segments:
+            avg = (section[0].y+section[1].y)/2
+            first_checkpoint = Point(section[0].x,avg)
+            self.checkpoints.append(first_checkpoint)
+
+            avg2 = (section[2].y + section[3].y) / 2
+            second_checkpoint = Point(section[2].x, avg2)
+            self.checkpoints.append(second_checkpoint)
+
         self.segments_for_car = self.segment_translate(self.segments)
 
     def segment_translate(self, segments):
