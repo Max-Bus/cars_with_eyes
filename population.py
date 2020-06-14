@@ -3,6 +3,7 @@ from car import Car
 from mapdata import *
 from neural_net import *
 from p5 import *
+from Integer import Integer
 import random
 
 inputs = 14
@@ -16,6 +17,7 @@ class Population:
         self.size = size
         self.innovation = 0
         self.success = 0
+        self.biggestNode =0
         self.checkpoints = racetrack.checkpoints
         startx = racetrack.start.x
         starty = racetrack.start.y
@@ -46,15 +48,10 @@ class Population:
 
         new_genome = []
         excess = []
-        max_innov_genome1 = 0
-        max_innov_genome2 = 0
         i =0
         j =0
+        issues = []
         while(i < len(genome1) and j<len(genome2)):
-            max_innov_genome1 += 1
-            max_innov_genome2 += 1
-
-
             # overlap
             if genome1[i].innovation == genome2[j].innovation:
                 if np.random.randint(0, 2) == 0:
@@ -72,15 +69,24 @@ class Population:
                     new_genome.append(genome2[j].copy())
                     i -= 1
 
+                issues.append(len(new_genome) - 1)
+
             # car1 genome is longer
             if j == len(genome2)-1:
-                if(i!=len(genome1)-1):
-                    excess = genome1[i:].copy()
+                if(i != len(genome1)-1):
+                    excess = genome1[i+1:].copy()
+
+                issues += list(np.arange(len(new_genome), len(excess)))
 
             i+=1
             j+=1
 
+
         new_genome += excess
+        for i in issues:
+            if self.isAncestor(new_genome[i],new_genome[i],new_genome):
+                new_genome.remove(i)
+
         return new_genome
 
 
@@ -174,65 +180,77 @@ class Population:
 
     def mutation(self,genome):
         # 80% nothing happens
-        # 15% change weight
-        # 5% add node/connection
+        # 17% change weight
+        # 2% add node/connection
         rand = np.random.randint(100)
-        if(rand<0):
+        if(rand<80):
             return genome
-        elif(rand<70):
+        elif(rand<97):
             gene =genome[np.random.randint(len(genome))]
             gene.weight *= (1 + np.random.uniform(-0.1,0.1))
         else:
             rand = np.random.randint(2)
             if(rand==0):
                 gene = genome[np.random.randint(len(genome))]
-                nodes = set()
-                for g in genome:
-                    nodes.add(g.in_ID)
-                    nodes.add(g.out_ID)
-                biggest_node=len(nodes)-inputs-outputs
+                biggest_ID = self.biggestNode
+                self.biggestNode+=1
+
                 parent = gene.in_ID
                 child = gene.out_ID
 
-                conn1 = NodeConnection(self.innovation,parent,biggest_node+1,np.random.uniform(-1,1),np.random.uniform(-1,1))
+                conn1 = NodeConnection(self.innovation,parent,biggest_ID,np.random.uniform(-1,1),np.random.uniform(-1,1))
                 self.innovCheck(conn1)
 
-                conn2 = NodeConnection(self.innovation,biggest_node+1,child,np.random.uniform(-1,1),np.random.uniform(-1,1))
+                conn2 = NodeConnection(self.innovation,biggest_ID,child,np.random.uniform(-1,1),np.random.uniform(-1,1))
                 self.innovCheck(conn2)
 
                 genome.remove(gene)
                 genome.append(conn1)
                 genome.append(conn2)
             else:
-                all_possible_parents = set()
-                out = 0
+                possible_parent = None
                 junk_indicies = []
-                while len(all_possible_parents) == 0 and len(junk_indicies) < len(genome):
-                    num =np.random.randint(len(genome))
-                    all_possible_parents = set()
+                bottom_node = None
+                top_node = None
+                while possible_parent is None and len(junk_indicies) < len(genome):
+                    num = np.random.randint(len(genome))
+                    possible_parent = None
 
                     while (num in junk_indicies):
                         num = np.random.randint(len(genome))
 
-                    gene = genome[num]
-                    out = gene.out_ID
-                    for g in genome:
-                        if(g.out_ID == gene.out_ID):
+                    bottom_node = genome[num]
+                    for top_node in genome:
+                        if(top_node.out_ID == bottom_node.out_ID):
+                            junk_indicies.append(num)
                             continue
 
-                        if g.in_ID == gene.out_ID:
+                        if self.isAncestor(bottom_node,top_node,genome):
+                            junk_indicies.append(num)
                             continue
 
-                        all_possible_parents.add(g.in_ID)
+                        possible_parent = top_node
 
 
-                if(len(junk_indicies)<len(genome)):
-                    return
-                in_id = random.choice(list(all_possible_parents))
-                newconn = NodeConnection(self.innovation,in_id,out,np.random.uniform(-1,1),np.random.uniform(-1,1))
+                newconn = NodeConnection(self.innovation,top_node.in_ID,bottom_node.out_ID,np.random.uniform(-1,1),bottom_node.out_bias)
                 self.innovCheck(newconn)
 
                 genome.append(newconn)
+
+    def isAncestor(self,start,search,genome):
+        if(isinstance(start.out_ID,str)):
+            return False
+        if start.out_ID == search.in_ID:
+            return True
+        result = False
+        for gene in genome:
+            if gene.in_ID == start.out_ID:
+                result = result or self.isAncestor(gene,start,genome)
+            if result == True:
+                return True
+
+
+
 
     def innovCheck(self,conn):
         changed = False
@@ -326,7 +344,7 @@ class Population:
                 allines = file.readlines()
                 for i in range(len(allines)):
                     parts = allines[i].strip().split(",")
-                    genome.append(NodeConnection(parts[0],parts[1],parts[2],parts[3],parts[4],parts[5],parts[6]))
+                    genome.append(NodeConnection(parts[0],parts[1],parts[2],parts[3],parts[4]))
             self.cars[0].neural_net= NeuralNet(genome)
 
 
@@ -336,21 +354,19 @@ class Population:
             for outs in range(outputs):
                 for ins in range(inputs):
 
-                    genome.append(NodeConnection(outs * inputs + ins, "in_" + str(ins), "out_" + str(outs), np.random.randn(), np.random.randn(),0,-1))
+                    genome.append(NodeConnection(outs * inputs + ins, "in_" + str(ins), "out_" + str(outs), np.random.randn(), np.random.randn()))
 
             c.neural_net = NeuralNet(genome)
 
 
 
 class NodeConnection:
-    def __init__(self,innovation, in_ID, out_ID, weight, out_bias,inlayer,outlayer):
+    def __init__(self,innovation, in_ID, out_ID, weight, out_bias):
         self.innovation = innovation
         self.out_bias = out_bias
         self.in_ID = in_ID
         self.out_ID = out_ID
         self.weight = weight
-        self.in_layer = inlayer
-        self.out_layer = outlayer
     def isSameConn(self, other):
         if(isinstance(other,NodeConnection)):
             return str(self.in_ID) == str(other.in_ID) and str(self.out_ID) == str(other.out_ID)
@@ -358,4 +374,4 @@ class NodeConnection:
     def copy(self):
         return NodeConnection(self.innovation, self.in_ID, self.out_ID, self.weight, self.out_bias)
     def __str__(self):
-        return str(self.innovation)+","+str(self.out_ID)+","+str(self.in_ID)+","+str(self.weight)+","+str(self.out_bias)+"," +str(self.in_layer)+","+ str(self.out_layer)
+        return str(self.innovation)+","+str(self.out_ID)+","+str(self.in_ID)+","+str(self.weight)+","+str(self.out_bias)

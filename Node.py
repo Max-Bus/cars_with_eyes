@@ -10,7 +10,7 @@ class Node:
         if self.parents == None:
             return self.val
         else:
-            sum = 0;
+            sum = 0
             for i in range(len(self.parents)):
                 sum += self.parents[i].getval()*self.weights[i]
             sum+=self.bias
