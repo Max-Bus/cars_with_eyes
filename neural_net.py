@@ -113,5 +113,3 @@ class NeuralNet:
 
         return outputs
 
-
-

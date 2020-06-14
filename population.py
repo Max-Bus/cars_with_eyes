@@ -13,7 +13,7 @@ class Population:
 
 
     def __init__(self, racetrack, size):
-        self.changes=[]
+        self.changes=set()
         self.size = size
         self.innovation = 0
         self.success = 0
@@ -83,11 +83,14 @@ class Population:
 
 
         new_genome += excess
-        for i in issues:
-            if self.isAncestor(new_genome[i],new_genome[i],new_genome):
-                new_genome.remove(i)
+        final_genome =[]
+        for i in range(len(new_genome)):
+            if self.isAncestor(new_genome[i],new_genome[i],new_genome,True):
+                continue
+            final_genome.append(new_genome[i])
 
-        return new_genome
+
+        return final_genome
 
 
 
@@ -163,6 +166,13 @@ class Population:
             genome = self.crossover(parents[0], parents[1])
 
             self.mutation(genome)
+            '''
+            for i in range(len(genome)):
+                if self.isAncestor(genome[i], genome[i], genome, True):
+                    i-=1
+                    genome.remove(i)
+            '''
+
 
             net = NeuralNet(genome)
             ratio = (self.goal.y - self.start.y) / (self.goal.x - self.start.x)
@@ -207,6 +217,10 @@ class Population:
                 genome.remove(gene)
                 genome.append(conn1)
                 genome.append(conn2)
+                if(self.isAncestor(conn1,conn1,genome,True) or self.isAncestor(conn1,conn2,genome,True)):
+                    genome.remove(conn1)
+                    genome.remove(conn2)
+                    genome.append(gene)
             else:
                 possible_parent = None
                 junk_indicies = []
@@ -225,27 +239,34 @@ class Population:
                             junk_indicies.append(num)
                             continue
 
-                        if self.isAncestor(bottom_node,top_node,genome):
+                        if top_node.in_ID == bottom_node.out_ID:
+                            junk_indicies.append(num)
+                            continue
+
+                        if self.isAncestor(bottom_node,top_node,genome,True):
                             junk_indicies.append(num)
                             continue
 
                         possible_parent = top_node
+                if possible_parent == None:
+                    return
 
-
-                newconn = NodeConnection(self.innovation,top_node.in_ID,bottom_node.out_ID,np.random.uniform(-1,1),bottom_node.out_bias)
+                newconn = NodeConnection(self.innovation,possible_parent.in_ID,bottom_node.out_ID,np.random.uniform(-1,1),bottom_node.out_bias)
                 self.innovCheck(newconn)
 
                 genome.append(newconn)
 
-    def isAncestor(self,start,search,genome):
+    def isAncestor(self,start,search,genome,first):
         if(isinstance(start.out_ID,str)):
             return False
+        if start.isSameConn(search) and not first:
+            return True
         if start.out_ID == search.in_ID:
             return True
         result = False
         for gene in genome:
             if gene.in_ID == start.out_ID:
-                result = result or self.isAncestor(gene,start,genome)
+                result = result or self.isAncestor(gene,start,genome,False)
             if result == True:
                 return True
 
@@ -254,13 +275,13 @@ class Population:
 
     def innovCheck(self,conn):
         changed = False
-        for i in range(len(self.changes)):
-            if (conn.isSameConn(self.changes[i])):
-                conn.innovation = self.changes[i].innovation
+        for i in self.changes:
+            if (conn.isSameConn(i)):
+                conn.innovation = i.innovation
                 changed = True
         if (not changed):
             self.innovation += 1
-            self.changes.append(conn)
+            self.changes.add(conn)
 
     def fitness(self,car):
         penalty = 0
@@ -353,8 +374,9 @@ class Population:
             genome = []
             for outs in range(outputs):
                 for ins in range(inputs):
-
-                    genome.append(NodeConnection(outs * inputs + ins, "in_" + str(ins), "out_" + str(outs), np.random.randn(), np.random.randn()))
+                    conn = NodeConnection(outs * inputs + ins, "in_" + str(ins), "out_" + str(outs), np.random.randn(), np.random.randn())
+                    self.changes.add(conn)
+                    genome.append(conn)
 
             c.neural_net = NeuralNet(genome)
 
@@ -362,6 +384,8 @@ class Population:
 
 class NodeConnection:
     def __init__(self,innovation, in_ID, out_ID, weight, out_bias):
+        if in_ID==out_ID:
+            print("gotcha")
         self.innovation = innovation
         self.out_bias = out_bias
         self.in_ID = in_ID
