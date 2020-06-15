@@ -7,7 +7,7 @@ class Node:
         self.bias = bias
         self.ID = ID
     def getval(self):
-        if self.parents == None:
+        if len(self.parents) == 0 :
             return self.val
         else:
             sum = 0

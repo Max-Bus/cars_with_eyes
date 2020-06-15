@@ -204,7 +204,7 @@ class Population:
             return genome
         elif(rand<90):
             gene =genome[np.random.randint(len(genome))]
-            x = 0.3/pow(self.generations,1/3)
+            x = 1/pow(self.generations,1/3)
             gene.weight += np.random.uniform(-x,x)
         else:
             rand = np.random.randint(2)
@@ -294,7 +294,7 @@ class Population:
     def fitness(self,car):
         penalty = 0
         if car.is_crashed:
-            penalty = 500
+            penalty = 200
 
         far = distance((car.x,car.y),self.goal)
         if far<=10:

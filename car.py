@@ -38,8 +38,8 @@ class Car:
         self.y += changey
     def throttle(self,acceleration):
         self.speed+=acceleration
-        if self.speed > 5:
-            self.speed = 5
+        if self.speed > 3:
+            self.speed = 3
     def turn(self,degrees):
         if(degrees>45):
             degrees=45
@@ -127,7 +127,7 @@ class Car:
 
 
         for i in range(len(self.feelers)):
-            if(self.borders[i]+5 > self.feelers[i] and self.feelers[i] != -1):
+            if(self.borders[i]+6 > self.feelers[i] and self.feelers[i] != -1):
                 return True
 
 
