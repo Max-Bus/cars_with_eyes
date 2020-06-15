@@ -9,7 +9,7 @@ r = RaceTrack()
 p = Population(r, POPSIZE)
 p.initialize_population(None)
 FRAME_RATE = 30
-MAX_TIME = FRAME_RATE
+MAX_TIME = 1000
 TIMER = 0
 MAXGEN = 1000
 
@@ -26,6 +26,8 @@ def draw():
     global MAX_TIME
     global MAXGEN
     if(MAXGEN==0):
+        p.cars.sort(reverse=True, key=p.fitness)
+        p.save_car(p.cars[0])
         exit()
     no_stroke()
     background(90, 230, 130)
@@ -36,8 +38,6 @@ def draw():
     else:
         if(len(p.cars)>0.6*p.size):
             MAX_TIME += 10
-        if(len(p.cars) == 0):
-            MAX_TIME = FRAME_RATE
         p.next_gen()
         MAXGEN-=1
         TIMER = 0

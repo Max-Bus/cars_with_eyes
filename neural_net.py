@@ -106,10 +106,10 @@ class NeuralNet:
     def answer_to_everything(self, inputs):
         for i in range(len(inputs)):
             self.input_nodes[i].val = inputs[i]
-        try:
+        #try:
             outputs = [n.getval() for n in self.output_nodes]
-        except:
-            print("whoops")
+        #except:
+            #print("whoops")
 
         return outputs
 

@@ -18,6 +18,8 @@ class Population:
         self.innovation = 0
         self.success = 0
         self.biggestNode =0
+        self.generations =0
+        self.borders = [(Point(0,0),Point(SIMW,0)),(Point(0,0),Point(0,SIMH)),(Point(0,SIMH),Point(SIMW,SIMH)),(Point(SIMW,SIMH),Point(SIMW,0))]
         self.checkpoints = racetrack.checkpoints
         startx = racetrack.start.x
         starty = racetrack.start.y
@@ -26,10 +28,12 @@ class Population:
 
         ratio = (self.goal.y - self.start.y) / (self.goal.x - self.start.x)
         angle = degrees(atan(ratio))
+        offset = 16
         if (self.goal.x < self.start.x):
             angle += 180
+            offset = -16
 
-        self.cars = [Car(startx, starty, angle,None) for i in range(size)]
+        self.cars = [Car(startx+offset, starty, angle,None) for i in range(size)]
         self.crashed_cars = []
 
 
@@ -69,14 +73,12 @@ class Population:
                     new_genome.append(genome2[j].copy())
                     i -= 1
 
-                issues.append(len(new_genome) - 1)
 
             # car1 genome is longer
             if j == len(genome2)-1:
                 if(i != len(genome1)-1):
                     excess = genome1[i+1:].copy()
 
-                issues += list(np.arange(len(new_genome), len(excess)))
 
             i+=1
             j+=1
@@ -99,6 +101,7 @@ class Population:
 
 
     def next_gen(self):
+        self.generations+=1
         print("cars:" + str(len(self.cars)))
         print("Innov:" + str(self.innovation))
 
@@ -137,9 +140,11 @@ class Population:
             net = NeuralNet(genome)
             ratio=(self.goal.y-self.start.y)/(self.goal.x-self.start.x)
             angle = degrees(atan(ratio))
+            offset = 16
             if (self.goal.x < self.start.x):
                 angle +=180
-            nextGEN.append(Car(self.start.x,self.start.y,angle,net))
+                offset = -16
+            nextGEN.append(Car(self.start.x + offset,self.start.y,angle,net))
 
         self.cars = nextGEN
 
@@ -177,9 +182,11 @@ class Population:
             net = NeuralNet(genome)
             ratio = (self.goal.y - self.start.y) / (self.goal.x - self.start.x)
             angle = degrees(atan(ratio))
+            offset = 16
             if (self.goal.x < self.start.x):
                 angle += 180
-            nextGEN.append(Car(self.start.x, self.start.y, angle, net))
+                offset = -16
+            nextGEN.append(Car(self.start.x + offset, self.start.y, angle, net))
 
         return nextGEN
 
@@ -189,15 +196,16 @@ class Population:
 
 
     def mutation(self,genome):
-        # 80% nothing happens
-        # 17% change weight
-        # 2% add node/connection
+        # 70% nothing happens
+        # 25% change weight
+        # 5% add node/connection
         rand = np.random.randint(100)
-        if(rand<80):
+        if(rand<50):
             return genome
-        elif(rand<97):
+        elif(rand<90):
             gene =genome[np.random.randint(len(genome))]
-            gene.weight *= (1 + np.random.uniform(-0.1,0.1))
+            x = 0.3/pow(self.generations,1/3)
+            gene.weight += np.random.uniform(-x,x)
         else:
             rand = np.random.randint(2)
             if(rand==0):
@@ -290,17 +298,18 @@ class Population:
 
         far = distance((car.x,car.y),self.goal)
         if far<=10:
-            file = open("cars/" + str(self.success) + ".txt", "w")
-            for gene in car.neural_net.genome:
-                file.write(str(gene) + "\n")
-            file.close()
+            self.save_car(car)
             self.success += 1
             return 1000 - penalty
 
         checkpoint_reward = 900.0*car.sector/len(self.checkpoints)
         return -1*far - penalty + checkpoint_reward
 
-
+    def save_car(self,car):
+        file = open("cars/" + str(self.success) + ".txt", "w")
+        for gene in car.neural_net.genome:
+            file.write(str(gene) + "\n")
+        file.close()
     def speciate(self):
         species = []
         speciated = []
@@ -321,7 +330,7 @@ class Population:
 
 
     def update(self,segments,see):
-
+        walls = segments+self.borders
         self.cars.sort(reverse=True,key=self.fitness)
         for c in self.cars:
             if(self.goal.x==0 and c.x <= self.checkpoints[c.sector].x):
@@ -330,8 +339,8 @@ class Population:
             if (self.goal.x != 0 and c.x >= self.checkpoints[c.sector].x):
                 c.sector += 1
 
-            c.update(segments,self.checkpoints[c.sector],see)
-            c.drawcar()
+            c.update(walls,self.checkpoints[c.sector],see)
+        self.cars[0].drawcar()
 
 
     def reload(self, racetrack):
@@ -360,13 +369,21 @@ class Population:
     def initialize_population(self,From_save):
         if(From_save != None):
             genome=[]
-            self.size=1
             with open("cars/"+From_save+".txt", "r") as file:
                 allines = file.readlines()
                 for i in range(len(allines)):
                     parts = allines[i].strip().split(",")
+                    for i in range(len(parts)):
+                        if i == 1 or i == 2:
+                            if("out" in parts[i] or "in" in parts[i]):
+                                continue
+
+                        parts[i] = float(parts[i])
+
                     genome.append(NodeConnection(parts[0],parts[1],parts[2],parts[3],parts[4]))
-            self.cars[0].neural_net= NeuralNet(genome)
+            for c in self.cars:
+                c.neural_net= NeuralNet(genome)
+            return
 
 
         self.innovation = inputs*outputs
@@ -398,4 +415,4 @@ class NodeConnection:
     def copy(self):
         return NodeConnection(self.innovation, self.in_ID, self.out_ID, self.weight, self.out_bias)
     def __str__(self):
-        return str(self.innovation)+","+str(self.out_ID)+","+str(self.in_ID)+","+str(self.weight)+","+str(self.out_bias)
+        return str(self.innovation)+","+str(self.in_ID)+","+str(self.out_ID)+","+str(self.weight)+","+str(self.out_bias)
