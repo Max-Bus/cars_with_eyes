@@ -297,16 +297,15 @@ class Population:
             penalty = 200
 
         far = distance((car.x,car.y),self.goal)
-        if far<=10:
-            self.save_car(car)
-            self.success += 1
-            return 1000 - penalty
+        if far <= 25:
+            car.won = True
+            return 1000 - car.time_alive
 
         checkpoint_reward = 900.0*car.sector/len(self.checkpoints)
         return -1*far - penalty + checkpoint_reward
 
-    def save_car(self,car):
-        file = open("cars/" + str(self.success) + ".txt", "w")
+    def save_car(self,car,num):
+        file = open("cars/" + num + ".txt", "w")
         for gene in car.neural_net.genome:
             file.write(str(gene) + "\n")
         file.close()
@@ -346,7 +345,9 @@ class Population:
     def reload(self, racetrack):
         startx = racetrack.start.x
         starty = racetrack.start.y
-
+        self.start = Point(startx, starty)
+        self.goal = Point(racetrack.end.x, racetrack.end.y)
+        self.checkpoints = racetrack.checkpoints
         initial_rotation = 0
 
         # topright

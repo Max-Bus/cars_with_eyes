@@ -9,7 +9,7 @@ r = RaceTrack()
 p = Population(r, POPSIZE)
 p.initialize_population(None)
 FRAME_RATE = 30
-MAX_TIME = 1000
+MAX_TIME = 3*FRAME_RATE
 TIMER = 0
 MAXGEN = 1000
 
@@ -27,7 +27,7 @@ def draw():
     global MAXGEN
     if(MAXGEN==0):
         p.cars.sort(reverse=True, key=p.fitness)
-        p.save_car(p.cars[0])
+        p.save_car(p.cars[0],"first_batch")
         exit()
     no_stroke()
     background(90, 230, 130)
@@ -36,8 +36,10 @@ def draw():
     if(TIMER < MAX_TIME and len(p.cars)>0):
         p.update(r.segment_translate(r.segments),TIMER%2==0)
     else:
-        if(len(p.cars)>0.6*p.size):
-            MAX_TIME += 10
+        if(len(p.cars)>0.5*p.size):
+            if not MAX_TIME == FRAME_RATE*30:
+                MAX_TIME += FRAME_RATE*2
+                print(MAX_TIME/FRAME_RATE)
         p.next_gen()
         MAXGEN-=1
         TIMER = 0
@@ -61,9 +63,11 @@ def key_pressed(event):
         r.save_track()
 
     if event.key == 'l':
+        global p
         r.load_track()
         time.sleep(3)
-        p.reload(r)
+        p = Population(r, POPSIZE)
+        p.initialize_population(None)
         setup()
 
 

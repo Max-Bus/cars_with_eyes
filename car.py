@@ -14,6 +14,8 @@ class Car:
         self.neural_net = neural_net
         self.sector=0
         self.is_crashed = False
+        self.time_alive =0
+        self.won = False
 
         p1 = Point(self.x + self.width / 2, self.y + self.height / 2)
         p2 = Point(self.x - self.width / 2, self.y + self.height / 2)
@@ -27,6 +29,9 @@ class Car:
         self.borders = self.see(mysegments)
 
     def update(self,segments,goal,see):
+        if self.won:
+            return
+        self.time_alive +=1
         self.move()
         if(see):
             self.feelers = self.see(segments)

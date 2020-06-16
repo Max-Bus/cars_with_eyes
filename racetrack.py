@@ -212,14 +212,7 @@ class RaceTrack:
         self.segments = segment_list
 
         self.checkpoints = []
-        for section in self.segments:
-            avg = (section[0].y+section[1].y)/2
-            first_checkpoint = Point(section[0].x,avg)
-            self.checkpoints.append(first_checkpoint)
-
-            avg2 = (section[2].y + section[3].y) / 2
-            second_checkpoint = Point(section[2].x, avg2)
-            self.checkpoints.append(second_checkpoint)
+        self.checkpoint_maker()
 
         self.segments_for_car = self.segment_translate(self.segments)
 
@@ -272,10 +265,17 @@ class RaceTrack:
                     p = Point(x,y)
                     new_segments[len(new_segments)-1].append(p)
             self.segments= new_segments
+        self.checkpoint_maker()
+        self.segments_for_car = self.segment_translate(self.segments)
         print("loaded")
         clear()
         self.display()
-
+    def checkpoint_maker(self):
+        self.checkpoints.clear()
+        for section in self.segments:
+            avg2 = (section[2].y + section[3].y) / 2
+            second_checkpoint = Point(section[2].x, avg2)
+            self.checkpoints.append(second_checkpoint)
     def display(self):
         rect_mode('CENTER')
 
@@ -290,7 +290,7 @@ class RaceTrack:
         rect((self.start.x, self.start.y), 40, 100)
 
         fill(55, 214, 0)
-        rect((self.end.x, self.end.y), 40, 100)
+        ellipse((self.end.x, self.end.y), 40, 40)
 
         fill('black')
 
