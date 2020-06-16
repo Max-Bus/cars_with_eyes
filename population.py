@@ -336,10 +336,10 @@ class Population:
         for c in self.cars:
             c.update(walls, self.checkpoints[c.sector], see)
 
-            if(self.goal.x==0 and c.x <= self.checkpoints[c.sector].x):
+            if(self.goal.x==0 and c.x < self.checkpoints[c.sector].x):
                 c.sector+=1
 
-            if (self.goal.x != 0 and c.x >= self.checkpoints[c.sector].x):
+            if (self.goal.x != 0 and c.x > self.checkpoints[c.sector].x):
                 c.sector += 1
 
         if draw:
@@ -417,14 +417,20 @@ class Population:
 
             # 1000 ticks maximum per run
             timer = 1000
-            while timer > 0 and not car.is_crashed:
+            while timer > 0 and not temp_pop.cars[0].is_crashed and not temp_pop.cars[0].won:
+                try:
+                    temp_pop.update(track.segment_translate(track.segments), timer % 2 == 0, False)
+                    temp_pop.fitness(temp_pop.cars[0])
+                except:
+                    print("uh ohhh")
 
-                temp_pop.update(track.segment_translate(track.segments), timer % 2 == 0, False)
 
                 temp_pop.cars[0].collision()
                 timer -= 1
 
+
             total_fitness += temp_pop.fitness(temp_pop.cars[0])
+
 
         car.fitness = total_fitness
         return total_fitness
