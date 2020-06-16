@@ -37,9 +37,12 @@ def draw():
         p.update(r.segment_translate(r.segments),TIMER%2==0)
     else:
         if(len(p.cars)>0.5*p.size):
-            if not MAX_TIME == FRAME_RATE*30:
+            p.cars.sort(reverse=True, key = p.fitness)
+            if not MAX_TIME == FRAME_RATE*30 and not p.cars[0].won:
                 MAX_TIME += FRAME_RATE*2
                 print(MAX_TIME/FRAME_RATE)
+            elif p.cars[0].won:
+                MAX_TIME = p.cars[0].time_alive
         p.next_gen()
         MAXGEN-=1
         TIMER = 0
