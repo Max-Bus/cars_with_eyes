@@ -3,8 +3,9 @@ from car import Car
 from mapdata import *
 from neural_net import *
 from p5 import *
-from Integer import Integer
 import random
+from racetrack import RaceTrack
+import os
 
 inputs = 14
 outputs = 2
@@ -25,6 +26,7 @@ class Population:
         starty = racetrack.start.y
         self.start = Point(startx,starty)
         self.goal = Point(racetrack.end.x,racetrack.end.y)
+        self.tracks = []
 
         ratio = (self.goal.y - self.start.y) / (self.goal.x - self.start.x)
         angle = degrees(atan(ratio))
@@ -94,12 +96,8 @@ class Population:
 
         return final_genome
 
-    def generalize(self):
-        # run next gen but sort by a new fitness function
-        return
-    def better_fitness(self):
-        # runs cars through multiple random courses and sums together there fitnesses
-        return
+
+
     def connectionSort(self,connection):
         return connection.innovation
 
@@ -301,7 +299,7 @@ class Population:
             penalty = 200
 
         far = distance((car.x,car.y),self.goal)
-        if far <= 25 or car.won == True:
+        if far <= 25:
             car.won = True
             return 100000 - car.time_alive
 
@@ -309,7 +307,7 @@ class Population:
         return -1*far - penalty + checkpoint_reward
 
     def save_car(self,car,num):
-        file = open("cars/" + num + ".txt", "w")
+        file = open("cars/" + str(num) + ".txt", "w")
         for gene in car.neural_net.genome:
             file.write(str(gene) + "\n")
         file.close()
@@ -332,30 +330,27 @@ class Population:
 
 
 
-    def update(self,segments,see):
+    def update(self,segments,see, draw):
         walls = segments+self.borders
         self.cars.sort(reverse=True,key=self.fitness)
         for c in self.cars:
+            c.update(walls, self.checkpoints[c.sector], see)
+
             if(self.goal.x==0 and c.x <= self.checkpoints[c.sector].x):
                 c.sector+=1
 
             if (self.goal.x != 0 and c.x >= self.checkpoints[c.sector].x):
                 c.sector += 1
 
-            c.update(walls,self.checkpoints[c.sector],see)
-        self.cars[0].drawcar()
+        if draw:
+            self.cars[0].drawcar()
 
 
-    def reload(self, racetrack):
-        startx = racetrack.start.x
-        starty = racetrack.start.y
-        self.start = Point(startx, starty)
-        self.goal = Point(racetrack.end.x, racetrack.end.y)
-        self.checkpoints = racetrack.checkpoints
+    def initialize_population(self, From_save, from_genome):
+        if not from_genome is None and len(from_genome) != 0:
+            for car in self.cars:
+                car.neural_net = NeuralNet(from_genome)
 
-
-
-    def initialize_population(self,From_save):
         if(From_save != None):
             genome=[]
             with open("cars/"+From_save+".txt", "r") as file:
@@ -370,8 +365,6 @@ class Population:
                         parts[i] = float(parts[i])
 
                     genome.append(NodeConnection(parts[0],parts[1],parts[2],parts[3],parts[4]))
-                    self.changes.add(NodeConnection(parts[0],parts[1],parts[2],parts[3],parts[4]))
-                    self.innovation = max(self.innovation,parts[0])
             for c in self.cars:
                 c.neural_net= NeuralNet(genome)
             return
@@ -388,6 +381,53 @@ class Population:
 
             c.neural_net = NeuralNet(genome)
 
+    # train for numgens generation, save top few cars to new files
+    def generalize(self, numgens):
+        self.tracks = [RaceTrack() for i in range(25)]
+
+        for i in range(numgens):
+            # sort by fitness
+            self.cars.sort(reverse=True, key=self.general_fitness)
+
+            # next gen
+            self.next_gen()
+
+        # a
+        self.cars.sort(reverse=True, key=self.general_fitness)
+
+        path, dirs, files = next(os.walk("cars/"))
+        file_count = len(files)
+
+        self.save_car(self.cars[0], file_count)
+        self.save_car(self.cars[0], file_count + 1)
+        self.save_car(self.cars[0], file_count + 2)
+
+
+    def general_fitness(self, car):
+        # if already has a fitness
+        if car.fitness != - math.inf:
+            return car.fitness
+
+        # run cars in background, one at a time
+        total_fitness = 0
+
+        for track in self.tracks:
+            temp_pop = Population(track, 1)
+            temp_pop.initialize_population(None, car.neural_net.genome)
+
+            # 1000 ticks maximum per run
+            timer = 1000
+            while timer > 0 and not car.is_crashed:
+
+                temp_pop.update(track.segment_translate(track.segments), timer % 2 == 0, False)
+
+                temp_pop.cars[0].collision()
+                timer -= 1
+
+            total_fitness += temp_pop.fitness(temp_pop.cars[0])
+
+        car.fitness = total_fitness
+        return total_fitness
 
 
 class NodeConnection:

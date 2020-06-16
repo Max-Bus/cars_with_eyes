@@ -6,17 +6,17 @@ class Car:
         self.x = startx
         self.y = starty
         self.dir = direction
-        self.width=5
-        self.height=10
-        self.speed=0
+        self.width = 5
+        self.height = 10
+        self.speed = 0
         self.feelers = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]
         self.feelerSlope = [0,22.5,45,90,135,180,225,270,315,337.5]
         self.neural_net = neural_net
-        self.sector=0
+        self.sector = 0
         self.is_crashed = False
-        self.time_alive =0
+        self.time_alive = 0
         self.won = False
-        self.fitness = 0
+        self.fitness = - math.inf
 
         p1 = Point(self.x + self.width / 2, self.y + self.height / 2)
         p2 = Point(self.x - self.width / 2, self.y + self.height / 2)
@@ -126,19 +126,17 @@ class Car:
 
     def collision(self):
         if(self.x < 0 or self.x > SIMW):
+            self.is_crashed = True
             return True
 
         if (self.y < 0 or self.y > SIMW):
+            self.is_crashed = True
             return True
-
-
-
 
         for i in range(len(self.feelers)):
             if(self.borders[i]+3 > self.feelers[i] and self.feelers[i] != -1):
+                self.is_crashed = True
                 return True
-
-
 
         return False
 
