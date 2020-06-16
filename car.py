@@ -16,6 +16,7 @@ class Car:
         self.is_crashed = False
         self.time_alive =0
         self.won = False
+        self.fitness = 0
 
         p1 = Point(self.x + self.width / 2, self.y + self.height / 2)
         p2 = Point(self.x - self.width / 2, self.y + self.height / 2)

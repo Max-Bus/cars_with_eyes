@@ -94,8 +94,12 @@ class Population:
 
         return final_genome
 
-
-
+    def generalize(self):
+        # run next gen but sort by a new fitness function
+        return
+    def better_fitness(self):
+        # runs cars through multiple random courses and sums together there fitnesses
+        return
     def connectionSort(self,connection):
         return connection.innovation
 
@@ -297,9 +301,9 @@ class Population:
             penalty = 200
 
         far = distance((car.x,car.y),self.goal)
-        if far <= 25:
+        if far <= 25 or car.won == True:
             car.won = True
-            return 1000 - car.time_alive
+            return 100000 - car.time_alive
 
         checkpoint_reward = 900.0*car.sector/len(self.checkpoints)
         return -1*far - penalty + checkpoint_reward
@@ -348,22 +352,6 @@ class Population:
         self.start = Point(startx, starty)
         self.goal = Point(racetrack.end.x, racetrack.end.y)
         self.checkpoints = racetrack.checkpoints
-        initial_rotation = 0
-
-        # topright
-        if startx > SIMW / 2 and starty < SIMH / 2:
-            initial_rotation = 135
-        # topleft
-        elif startx < SIMW / 2 and starty < SIMH / 2:
-            initial_rotation = 45
-        # bottomleft
-        elif startx < SIMW / 2 and starty > SIMH / 2:
-            initial_rotation = 315
-        # bottomright
-        elif startx > SIMW / 2 and starty > SIMH / 2:
-            initial_rotation = 225
-
-        self.cars = [Car(startx, starty, initial_rotation, None) for i in range(self.size)]
 
 
 
@@ -382,6 +370,8 @@ class Population:
                         parts[i] = float(parts[i])
 
                     genome.append(NodeConnection(parts[0],parts[1],parts[2],parts[3],parts[4]))
+                    self.changes.add(NodeConnection(parts[0],parts[1],parts[2],parts[3],parts[4]))
+                    self.innovation = max(self.innovation,parts[0])
             for c in self.cars:
                 c.neural_net= NeuralNet(genome)
             return

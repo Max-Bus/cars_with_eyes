@@ -7,11 +7,12 @@ import time
 
 r = RaceTrack()
 p = Population(r, POPSIZE)
-p.initialize_population(None)
+p.initialize_population("first_batch")
 FRAME_RATE = 30
 MAX_TIME = 3*FRAME_RATE
 TIMER = 0
-MAXGEN = 1000
+MAXGEN = 15
+TIME_CHANGE = False
 
 # c = Car(r.start[0], r.start[1], 0)
 
@@ -25,10 +26,7 @@ def draw():
     global TIMER
     global MAX_TIME
     global MAXGEN
-    if(MAXGEN==0):
-        p.cars.sort(reverse=True, key=p.fitness)
-        p.save_car(p.cars[0],"first_batch")
-        exit()
+    global TIME_CHANGE
     no_stroke()
     background(90, 230, 130)
 
@@ -36,13 +34,26 @@ def draw():
     if(TIMER < MAX_TIME and len(p.cars)>0):
         p.update(r.segment_translate(r.segments),TIMER%2==0)
     else:
-        if(len(p.cars)>0.5*p.size):
-            p.cars.sort(reverse=True, key = p.fitness)
-            if not MAX_TIME == FRAME_RATE*30 and not p.cars[0].won:
-                MAX_TIME += FRAME_RATE*2
-                print(MAX_TIME/FRAME_RATE)
-            elif p.cars[0].won:
-                MAX_TIME = p.cars[0].time_alive
+        if (MAXGEN == 0):
+            p.cars.sort(reverse=True, key=p.fitness)
+            if p.cars[0].won:
+                p.save_car(p.cars[0], "second_batch")
+                exit()
+            else:
+                MAX_TIME += 1
+                MAXGEN=1
+        if (len(p.cars)>0):
+            p.cars.sort(reverse=True, key=p.fitness)
+            if(len(p.cars)>0.5*p.size and (not p.cars[0].won) and (not TIME_CHANGE)):
+                if (not MAX_TIME >= FRAME_RATE*30):
+                    MAX_TIME += FRAME_RATE*2
+                    print(MAX_TIME/FRAME_RATE)
+            if p.cars[0].won:
+                print("new PB")
+                MAX_TIME = min(p.cars[0].time_alive,MAX_TIME)
+                if MAX_TIME == p.cars[0].time_alive:
+                    print("a car won its time was:"+str(MAX_TIME / FRAME_RATE))
+                    TIME_CHANGE =True
         p.next_gen()
         MAXGEN-=1
         TIMER = 0
