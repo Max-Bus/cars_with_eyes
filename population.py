@@ -102,7 +102,9 @@ class Population:
         return connection.innovation
 
 
-    def next_gen(self):
+    def next_gen(self,showcase):
+        if showcase:
+            self.cars += self.crashed_cars
         self.generations+=1
         print("cars:" + str(len(self.cars)))
         print("Innov:" + str(self.innovation))
@@ -383,24 +385,23 @@ class Population:
 
     # train for numgens generation, save top few cars to new files
     def generalize(self, numgens):
-        self.tracks = [RaceTrack() for i in range(25)]
+        self.tracks = [RaceTrack() for i in range(2)]
 
         for i in range(numgens):
             # sort by fitness
             self.cars.sort(reverse=True, key=self.general_fitness)
 
             # next gen
-            self.next_gen()
+            self.next_gen(False)
 
         # a
         self.cars.sort(reverse=True, key=self.general_fitness)
 
         path, dirs, files = next(os.walk("cars/"))
         file_count = len(files)
-
-        self.save_car(self.cars[0], file_count)
-        self.save_car(self.cars[0], file_count + 1)
-        self.save_car(self.cars[0], file_count + 2)
+        for i in range(min(len(self.cars),3)):
+            print("best fitness for car "+str(i)+" "+str(self.cars[i].fitness))
+            self.save_car(self.cars[i], "general_"+str(file_count+i))
 
 
     def general_fitness(self, car):

@@ -6,10 +6,10 @@ from car import*
 import time
 
 r = RaceTrack()
-p = Population(r, POPSIZE)
-p.initialize_population("first_batch")
+p = Population(r, 1)
+p.initialize_population("general_9",None)
 FRAME_RATE = 30
-MAX_TIME = 3*FRAME_RATE
+MAX_TIME = 20*FRAME_RATE
 TIMER = 0
 MAXGEN = 15
 TIME_CHANGE = False
@@ -32,12 +32,12 @@ def draw():
 
     r.display()
     if(TIMER < MAX_TIME and len(p.cars)>0):
-        p.update(r.segment_translate(r.segments),TIMER%2==0)
+        p.update(r.segment_translate(r.segments),True,True)
     else:
         if (MAXGEN == 0):
             p.cars.sort(reverse=True, key=p.fitness)
             if p.cars[0].won:
-                p.save_car(p.cars[0], "second_batch")
+                p.save_car(p.cars[0], "good_tester_solver")
                 exit()
             else:
                 MAX_TIME += 1
@@ -54,7 +54,7 @@ def draw():
                 if MAX_TIME == p.cars[0].time_alive:
                     print("a car won its time was:"+str(MAX_TIME / FRAME_RATE))
                     TIME_CHANGE =True
-        p.next_gen()
+        p.next_gen(True)
         MAXGEN-=1
         TIMER = 0
 
@@ -81,7 +81,7 @@ def key_pressed(event):
         r.load_track()
         time.sleep(3)
         p = Population(r, POPSIZE)
-        p.initialize_population(None)
+        p.initialize_population("good_tester_solver",None)
         setup()
 
 

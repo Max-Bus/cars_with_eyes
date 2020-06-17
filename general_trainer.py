@@ -4,4 +4,4 @@ from mapdata import *
 
 p = Population(RaceTrack(), POPSIZE)
 p.initialize_population(None, None)
-p.generalize(2)
+p.generalize(100)
