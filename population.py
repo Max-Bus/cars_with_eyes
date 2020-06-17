@@ -385,7 +385,7 @@ class Population:
 
     # train for numgens generation, save top few cars to new files
     def generalize(self, numgens):
-        self.tracks = [RaceTrack() for i in range(2)]
+        self.tracks = [RaceTrack() for i in range(25)]
 
         for i in range(numgens):
             # sort by fitness
